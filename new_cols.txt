@@ -1,0 +1,9 @@
+ID
+Group
+Gender
+Bilingual
+Age (months)
+Expressive vocab (standardized)
+Receptive vocab (standardized)
+Age of CI activation (months)
+Time in Sound (months)
