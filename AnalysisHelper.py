@@ -65,7 +65,7 @@ def remove_outliers(df, var, outlier_constant = 1.5):
 	return(cleanTrials)		
 
 def EyeDF_func(df):
-	'''This function still needs work'''
+	'''This function still needs work, more arguments so that it can be generalizable, there may be a better way to '''
 	EyeDF_cols = []
 	EyeDF = pd.DataFrame(columns = EyeDF_cols)
 	Fix0 = df[df['current fix idx'] == 1]
@@ -114,9 +114,20 @@ def Add_FirstFixDwell(df, fixation1Var, fixation2Var, fixDuration1, fixDuration2
 
 
 
-##### Typical Data Subsetting for Eyetracking Data #####
+##### Data Subsetting for Eyetracking Data Figures #####
 
-
+def FirstFixProportions(df, condition_list, IA_1='targetIA', IA_2='distIA', trialVar = 'trial'):
+    '''Uses dataframe of count values & finds proportion of first fixations to two interest areas, 
+    not suitable for more than two interest areas'''
+    result = pd.DataFrame()
+    for condition in condition_list:
+        target = (df[(trialVar, condition)][IA_1])/((df[(trialVar,condition)][IA_2])+
+                                                          (df[(trialVar, condition)][IA_1]))
+        distractor = (df[(trialVar, condition)][IA_2])/((df[(trialVar, condition)][IA_2])+
+                                                            (df[(trialVar, condition)][IA_1]))
+        Proportion_Dict = {'condition':condition,'target': target,'distractor':distractor}
+        result = result.append(Proportion_Dict, ignore_index =True)
+    return result
 
 
 
