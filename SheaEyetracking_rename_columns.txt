@@ -1,0 +1,14 @@
+participant
+trial
+total_fixations
+current_fix_dur
+current_fix_idx
+current_IA_id
+current_IA_label
+running_dwell_time
+current_fix_IA_fixcount
+current_fix_dur
+current_fix_start_time
+nearest_IA
+nearest_IA_distance
+nearest_IA_label
