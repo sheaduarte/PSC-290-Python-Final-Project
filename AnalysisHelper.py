@@ -7,7 +7,7 @@ from functools import reduce
 
 #this list of packages should be reduced (& probably also expanded) 
 
-########## Importing and cleaning Data ##########
+########## Importing and Cleaning Data ##########
 
 
 
@@ -63,36 +63,27 @@ def remove_outliers(df, var, outlier_constant = 1.5):
 	upperOutliers = upperOutliersCalc.iloc[0]
 	cleanTrials = df[df[var].between(lowerOutliers, upperOutliers)]
 	return(cleanTrials)		
-
-def EyeDF_func(df):
-	'''This function still needs work, more arguments so that it can be generalizable, there may be a better way to '''
-	EyeDF_cols = []
-	EyeDF = pd.DataFrame(columns = EyeDF_cols)
-	Fix0 = df[df['current fix idx'] == 1]
-	EyeDF['trial'] = Fix0['trial']
-	EyeDF['participant'] = Fix0['participant']
-	EyeDF['total fixations'] = Fix0['total fixations']
-	EyeDF['latency'] = Fix0['current fix dur']
-	EyeDF['fixation0'] = Fix0['nearest IA label']
-	keep_cols = ['trial', 'participant', 'nearest IA label', 'current fix dur']
-	Fix1 = df[df['current fix idx'] == 2]
-	Fix1 = Fix1[keep_cols]
-	Fix1 = Fix1.rename(columns = {'nearest IA label':'fixation1','current fix dur':'fix dur1'})
-	Fix2 = df[df['current fix idx'] == 3]
-	Fix2 = Fix2[keep_cols]
-	Fix2 = Fix2.rename(columns = {'nearest IA label':'fixation2','current fix dur':'fix dur2'})
-	Fix3 = df[df['current fix idx'] == 4]
-	Fix3 = Fix3[keep_cols]
-	Fix3 = Fix3.rename(columns = {'nearest IA label':'fixation3','current fix dur':'fix dur3'})
-	Fix4 = df[df['current fix idx'] == 5]
-	Fix4 = Fix4[keep_cols]
-	Fix4 = Fix4.rename(columns = {'nearest IA label':'fixation4','current fix dur':'fix dur4'})
-	Fix5 = df[df['current fix idx'] == 6]
-	Fix5 = Fix5[keep_cols]
-	Fix5 = Fix5.rename(columns = {'nearest IA label':'fixation5','current fix dur':'fix dur5'})
-	dfs = [EyeDF, Fix1, Fix2, Fix3, Fix4, Fix5]
-	EyeDF = reduce(lambda left,right: pd.merge(left,right,on=['trial', 'participant'],how='outer'), dfs)
-	return EyeDF
+	
+def EyeTracking_MasterDF(df, currentFixationIdx, nearestIAVar, currentFixDurationVar, fixationTotalVar, trialVar = 'trial', participantVar = 'participant'):
+    '''This function takes a raw eye tracking dataframe and condenses it down to 
+    the number of trials in the task by creating a summary row for each trial'''
+    EyeDF_cols = []
+    EyeTracking_MasterDF = pd.DataFrame(columns = EyeDF_cols)
+    Fix0 = df[df[currentFixationIdx] == 1]
+    EyeTracking_MasterDF['trial'] = Fix0[trialVar]
+    EyeTracking_MasterDF['participant'] = Fix0[participantVar]
+    EyeTracking_MasterDF['total_fixations'] = Fix0[fixationTotalVar]
+    EyeTracking_MasterDF['latency'] = Fix0[currentFixDurationVar]
+    EyeTracking_MasterDF['fixation0'] = Fix0[nearestIAVar]
+    keep_cols = [trialVar, participantVar, nearestIAVar, currentFixDurationVar]
+    dfs = [EyeTracking_MasterDF]
+    for x in list(range(2,7)):
+        FixDFs = df[df[currentFixationIdx] == x]
+        FixDFs = FixDFs[keep_cols]
+        FixDFs = FixDFs.rename(columns = {nearestIAVar:'fixation' + str(x), currentFixDurationVar:'fix_dur' + str(x)})
+        dfs.append(FixDFs)
+    EyeTracking_MasterDF = reduce(lambda left,right: pd.merge(left,right,on=['trial', 'participant'], how='outer'), dfs)
+    return EyeTracking_MasterDF
 	
 def First_Fixation(df, fixation1Var, fixation2Var, fixation3Var, fixationIA = 'fixationIA'):
 	'''Used to disregard first fixations that are on the fixation cross (the fixation interest area (IA)) 
@@ -109,6 +100,9 @@ def Add_FirstFixDwell(df, fixation1Var, fixation2Var, fixDuration1, fixDuration2
 	idx2 = df.index[(df[fixation1Var]==fixationIA) & (df[fixation2Var]==fixationIA)]
 	df.loc[idx2, 'first_fix_dwell'] = df[fixDuration3]
 	return df
+	
+	
+	
 	
 ########## Creating Figures ##########
 
