@@ -111,9 +111,11 @@ def histogram(df, y):
 	'''Requires altair and altair saver. Plots a histogram of y and automatically saves a html file 
 	to output directory. Won't work if df has more than 5000 rows.'''
 	if df.shape[0] >5000:
-		return 'The dataframe is too large. Subset the data or use a different dataframe.'
-	else:
-		chart = alt.Chart(df).mark_bar().encode(alt.X(y,title= ylab[0], bin = True), y = 'count()', )
+        	return 'The dataframe is too large. Subset the data or use a different dataframe.'
+    	else:
+		chart = alt.Chart(df).mark_bar(
+		).encode(alt.X(y,title= ylab[0], bin = True), y = 'count()', 
+		).properties(title = 'Distribution of '+y)
 		chart.save(output_directory+'Histogram of '+y+'.html')
 		return chart
 
@@ -128,7 +130,7 @@ def bar_graph(df,x,y,z):
 	g.set_ylabels(ylab[0])
 	g.set_xlabels(xlab[0])
 	#g.set_xticklabels(rotation=45) #can turn off if you don't need axes rotated
-	g.set_titles('Mean Differences in '+ylab[0])
+	g.set(title ='Mean Differences in '+y)
 	g.savefig(output_directory+ 'Mean Differences in '+y+'.png')
 	return g
 
@@ -194,6 +196,7 @@ def violin(df,x,y,z):
 					hue=z, #optional
 					data=df)
 	ax.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+	ax.set(title ='Distribution of '+y+' by '+x)
 	return ax
 
 def regression_plot(df,x,y,z):
@@ -202,6 +205,8 @@ def regression_plot(df,x,y,z):
 	g = sns.lmplot(x=x, y=y, hue=z,
 			   data=df)
 	g.savefig(output_directory+ 'Regression Plot of '+x+' and '+y+'.png')
+	g.set(title ='Regression Plot of '+x+' and '+y)
+    return g
 
 def boxplot(df,x,y,z):
 	'''Requires seaborn. Plots a boxplot of y by x with marks for outliers,, where z 
@@ -211,6 +216,8 @@ def boxplot(df,x,y,z):
 				data=df)
 	sns.despine(offset=10, trim=True)
 	ax.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+	ax.set(title ='Distribution of '+y+' by '+x)
+	return ax
 
 
 ##### Data Subsetting for Eyetracking Data Figures #####
