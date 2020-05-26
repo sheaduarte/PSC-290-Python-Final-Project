@@ -132,19 +132,26 @@ def bar_graph(df,x,y,z):
 	g.savefig(output_directory+ 'Mean Differences in '+y+'.png')
 	return g
 
-# def stacked_bar_graph(df,x,y,z):
-#	  '''Requires altair and altair saver. Plots a standardized stacked bar graph of x by y, where z
-#	  is different subgroups within X. Automatically saves a html file to output directory. '''
-#	  chart = alt.Chart(df).mark_bar().encode(
-#		  x=x,
-#		  y='sum('+y+')',
-#		  color=alt.Color(z,
-#		  scale=alt.Scale(scheme='dark2')) #changes color scheme.
-#		  # see https://vega.github.io/vega/docs/schemes/ for examples
-#	  ).properties(
-#	  title='Proportions of 'z+' by '+x)
-#	chart.save(output_directory+'Proportions of 'z+' by '+x+'.html')
-#	  return chart
+def stacked_bar_graph(df,id_vars_list, value_vars_list, var_name_str, value_name_str, x, y, z):
+	'''Requires pandas, altair and altair saver. First converts a df to long format using melt. Next, plots a 
+	standardized stacked bar graph of x by y, where z is different subgroups within X. Automatically saves a html 
+	file to output directory. '''
+	# convert df to long format:
+	long_df = pd.melt(df, id_vars = id_vars_list, 
+			    value_vars = value_vars_list, 
+			    var_name = var_name_str, 
+			    value_name = value_name_str)
+	# plot stacked bar graph:
+	chart = alt.Chart(long_df).mark_bar().encode(
+		x = x,
+		y = 'sum('+y+')',
+		color = alt.Color(z, 
+		scale = alt.Scale(scheme='dark2')) #changes color scheme. 
+		# see https://vega.github.io/vega/docs/schemes/ for examples
+	    	).properties(
+	    	title = 'Proportions of '+z+' by '+x)
+	chart.save(output_directory+'Proportions of '+z+' by '+x+'.html')
+	return chart
 
 def scatter_plot(df,x,y,z):
 	'''Requires altair and altair saver. Plots a scatter plot of x and y, where z 
