@@ -136,10 +136,10 @@ def bar_graph(df,x,y,z, output_directory = None):
 	#g.set_xticklabels(rotation=45) #can turn off if you don't need axes rotated
 	g.set(title ='Mean Differences in '+y)
     if output_directory == None:
-            return chart
-        else:
-            g.savefig(output_directory+ 'Mean Differences in '+y+'.png')
-            return g
+        return chart
+    else:
+        g.savefig(output_directory+ 'Mean Differences in '+y+'.png')
+        return g
 
 def stacked_bar_graph(df,id_vars_list, value_vars_list, var_name_str, value_name_str, x, y, z, output_directory = None):
 	'''Requires pandas, altair and altair saver. First converts a df to long format using melt. Next, plots a 
@@ -161,7 +161,7 @@ def stacked_bar_graph(df,id_vars_list, value_vars_list, var_name_str, value_name
 			title = 'Proportions of '+z+' by '+x)
     if output_directory == None:
             return chart
-        else:
+    else:
             chart.save(output_directory+'Proportions of '+z+' by '+x+'.html')
             return chart
 
@@ -179,7 +179,7 @@ def scatter_plot(df,x,y,z, tt_interactive, output_directory = None):
 	title='Scatterplot of '+x+' by '+y)
     if output_directory == None:
             return chart
-        else:
+    else:
             chart.save(output_directory+'Scatterplot of '+x+' by '+y+'.html')
             return chart
 
