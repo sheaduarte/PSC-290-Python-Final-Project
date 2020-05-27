@@ -188,15 +188,15 @@ def scatter_matrix(df,x,z, output_directory):
 		row=x,
 		column= x_inverse
 	).interactive()
-        chart.save(output_directory+'Scatterplot Matrix.html')
-        return chart
+	chart.save(output_directory+'Scatterplot Matrix.html')
+	return chart
 
 def violin(df,x,y,z):
 	'''Requires seaborn. Plots a violin distribution plot of y by x	 where z 
 	is a factor that allows for grouping, if desired. DOES NOT AUTOMATICALLY SAVE OUTPUT. '''
 	ax = sns.violinplot(x=x, y=y, 
-					hue=z, #optional
-					data=df)
+		hue=z, #optional
+		data=df)
 	ax.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
 	ax.set(title ='Distribution of '+y+' by '+x)
 	return ax
@@ -205,7 +205,7 @@ def regression_plot(df,x,y,z, output_directory):
 	'''Requires seaborn. Plots a regression plot of x by y with regression lines, where z 
 	is a factor that allows for grouping, if desired. Automatically saves output as a png file. '''
 	g = sns.lmplot(x=x, y=y, hue=z,
-			   data=df)
+		       data=df)
 	g.set(title ='Regression Plot of '+x+' and '+y)
 	g.savefig(output_directory+ 'Regression Plot of '+x+' and '+y+'.png')
 	return g
@@ -214,8 +214,8 @@ def boxplot(df,x,y,z):
 	'''Requires seaborn. Plots a boxplot of y by x with marks for outliers,, where z 
 	is a factor that allows for grouping, if desired. DOES NOT AUTOMATICALLY SAVE OUTPUT. '''
 	ax = sns.boxplot(x=x, y=y,
-				hue=z,
-				data=df)
+			 hue=z,
+			 data=df)
 	sns.despine(offset=10, trim=True)
 	ax.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
 	ax.set(title ='Distribution of '+y+' by '+x)
