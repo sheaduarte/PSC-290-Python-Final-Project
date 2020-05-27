@@ -108,64 +108,56 @@ def Add_FirstFixDwell(df, fixation1Var, fixation2Var, fixDuration1, fixDuration2
 	
 ########## Creating Figures ##########
 
-def histogram(df, y, output_directory = None):
+def histogram(df, y, output_directory):
 	'''Requires altair and altair saver. Plots a histogram of y and automatically saves a html file 
 	to output directory. Won't work if df has more than 5000 rows.'''
 	if df.shape[0] >5000:
-		return 'The dataframe is too large. Subset the data or use a different dataframe.'
+        	return 'The dataframe is too large. Subset the data or use a different dataframe.'
 	else:
-		chart = alt.Chart(df).mark_bar(
-		).encode(alt.X(y,title= y, bin = True), y = 'count()', 
-		).properties(title = 'Distribution of '+y)
-        if output_directory = None:
-            return chart
-        else:
-            chart.save(output_directory+'Histogram of '+y+'.html')
-            return chart
+        	chart = alt.Chart(df).mark_bar(
+        	).encode(alt.X(y,title= y, bin = True), y = 'count()', 
+        	).properties(title = 'Distribution of '+y)
+        	chart.save(output_directory+'Histogram of '+y+'.html')
+        	return chart
 
-def bar_graph(df,x,y,z, output_directory = None):
+def bar_graph(df,x,y,z, output_directory):
 	'''Requires seaborn. Plots a bar graph of x by y, grouped by z if desired. Automatically saves 
 	a png file to output directory. '''
 	g = sns.catplot(x=x, y=y, 
-				hue=z, # use this to group, if needed
-				data=df,
-				height=6, kind="bar")
-	g.despine(left=True)
-	g.set_ylabels(y)
+                hue=z, # use this to group, if needed
+                data=df,
+                height=6, kind="bar")
+    	g.despine(left=True)
+    	g.set_ylabels(y)
 	g.set_xlabels(x)
 	#g.set_xticklabels(rotation=45) #can turn off if you don't need axes rotated
 	g.set(title ='Mean Differences in '+y)
-    if output_directory == None:
-        return chart
-    else:
-        g.savefig(output_directory+ 'Mean Differences in '+y+'.png')
-        return g
+	g.savefig(output_directory+ 'Mean Differences in '+y+'.png')
+	return g
 
-def stacked_bar_graph(df,id_vars_list, value_vars_list, var_name_str, value_name_str, x, y, z, output_directory = None):
+def stacked_bar_graph(df,id_vars_list, value_vars_list, var_name_str, value_name_str, x, y, z, output_directory):
 	'''Requires pandas, altair and altair saver. First converts a df to long format using melt. Next, plots a 
 	standardized stacked bar graph of x by y, where z is different subgroups within X. Automatically saves a html 
 	file to output directory. '''
-	# convert df to long format:
+	# convert df to long format
 	long_df = pd.melt(df, id_vars = id_vars_list, 
-				value_vars = value_vars_list, 
-				var_name = var_name_str, 
-				value_name = value_name_str)
-	# plot stacked bar graph:
+			    value_vars = value_vars_list, 
+			    var_name = var_name_str, 
+			    value_name = value_name_str)
+
+	# plot stacked bar graph
 	chart = alt.Chart(long_df).mark_bar().encode(
 		x = x,
 		y = 'sum('+y+')',
 		color = alt.Color(z, 
 		scale = alt.Scale(scheme='dark2')) #changes color scheme. 
 		# see https://vega.github.io/vega/docs/schemes/ for examples
-			).properties(
-			title = 'Proportions of '+z+' by '+x)
-    if output_directory == None:
-        return chart
-    else:
-        chart.save(output_directory+'Proportions of '+z+' by '+x+'.html')
-        return chart
+	    ).properties(
+		title = 'Proportions of 'z+' by '+x)
+    	chart.save(output_directory+'Proportions of 'z+' by '+x+'.html')
+    	return chart
 
-def scatter_plot(df,x,y,z, tt_interactive, output_directory = None):
+def scatter_plot(df,x,y,z, tt_interactive, output_directory):
 	'''Requires altair and altair saver. Plots a scatter plot of x and y, where z 
 	is a factor that changes point color (optional). Tooltip functionality enabled, but will 
 	need to specify desired columns ahead of time. Automatically saves a html file to output directory. '''
@@ -177,13 +169,10 @@ def scatter_plot(df,x,y,z, tt_interactive, output_directory = None):
 	tooltip= tt_interactive
 	).interactive().properties(
 	title='Scatterplot of '+x+' by '+y)
-    if output_directory == None:
-        return chart
-    else:
-        chart.save(output_directory+'Scatterplot of '+x+' by '+y+'.html')
-        return chart
+    chart.save(output_directory+'Scatterplot of '+x+' by '+y+'.html')
+    return chart
 
-def scatter_matrix(df,x,z, output_directory = None):
+def scatter_matrix(df,x,z, output_directory):
 	'''Requires altair and altair saver. Plots a scatter matrix of a list of variables (x), where z 
 	is a factor that changes point color (optional). Automatically saves a html file to output directory. '''
 	x_inverse = x[::-1] 
@@ -199,9 +188,6 @@ def scatter_matrix(df,x,z, output_directory = None):
 		row=x,
 		column= x_inverse
 	).interactive()
-	if output_directory == None:
-        return chart
-    else:
         chart.save(output_directory+'Scatterplot Matrix.html')
         return chart
 
@@ -215,15 +201,12 @@ def violin(df,x,y,z):
 	ax.set(title ='Distribution of '+y+' by '+x)
 	return ax
 
-def regression_plot(df,x,y,z, output_directory = None):
+def regression_plot(df,x,y,z, output_directory):
 	'''Requires seaborn. Plots a regression plot of x by y with regression lines, where z 
 	is a factor that allows for grouping, if desired. Automatically saves output as a png file. '''
 	g = sns.lmplot(x=x, y=y, hue=z,
 			   data=df)
 	g.set(title ='Regression Plot of '+x+' and '+y)
-    if output_directory == None:
-        return chart
-    else:
         g.savefig(output_directory+ 'Regression Plot of '+x+' and '+y+'.png')
         return g
 
