@@ -115,7 +115,7 @@ def histogram(df, y):
 			return 'The dataframe is too large. Subset the data or use a different dataframe.'
 	else:
 		chart = alt.Chart(df).mark_bar(
-		).encode(alt.X(y,title= ylab[0], bin = True), y = 'count()', 
+		).encode(alt.X(y,title= y, bin = True), y = 'count()', 
 		).properties(title = 'Distribution of '+y)
 		chart.save(output_directory+'Histogram of '+y+'.html')
 		return chart
@@ -128,8 +128,8 @@ def bar_graph(df,x,y,z):
 				data=df,
 				height=6, kind="bar")
 	g.despine(left=True)
-	g.set_ylabels(ylab[0])
-	g.set_xlabels(xlab[0])
+	g.set_ylabels(y)
+	g.set_xlabels(x)
 	#g.set_xticklabels(rotation=45) #can turn off if you don't need axes rotated
 	g.set(title ='Mean Differences in '+y)
 	g.savefig(output_directory+ 'Mean Differences in '+y+'.png')
@@ -156,7 +156,7 @@ def stacked_bar_graph(df,id_vars_list, value_vars_list, var_name_str, value_name
 	chart.save(output_directory+'Proportions of '+z+' by '+x+'.html')
 	return chart
 
-def scatter_plot(df,x,y,z):
+def scatter_plot(df,x,y,z, tt_interactive):
 	'''Requires altair and altair saver. Plots a scatter plot of x and y, where z 
 	is a factor that changes point color (optional). Tooltip functionality enabled, but will 
 	need to specify desired columns ahead of time. Automatically saves a html file to output directory. '''
