@@ -117,7 +117,7 @@ def histogram(df, y, output_directory = None):
 		chart = alt.Chart(df).mark_bar(
 		).encode(alt.X(y,title= y, bin = True), y = 'count()', 
 		).properties(title = 'Distribution of '+y)
-        if output_directory == None:
+        if output_directory = None:
             return chart
         else:
             chart.save(output_directory+'Histogram of '+y+'.html')
