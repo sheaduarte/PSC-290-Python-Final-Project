@@ -153,7 +153,7 @@ def stacked_bar_graph(df,id_vars_list, value_vars_list, var_name_str, value_name
 		scale = alt.Scale(scheme='dark2')) #changes color scheme. 
 		# see https://vega.github.io/vega/docs/schemes/ for examples
 	    ).properties(
-		title = 'Proportions of 'z+' by '+x)
+		title = 'Proportions of '+z+' by '+x)
     	chart.save(output_directory+'Proportions of 'z+' by '+x+'.html')
     	return chart
 
