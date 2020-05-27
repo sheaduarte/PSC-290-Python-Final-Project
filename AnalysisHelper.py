@@ -128,7 +128,7 @@ def bar_graph(df,x,y,z, output_directory):
                 data=df,
                 height=6, kind="bar")
 	g.despine(left=True)
-    	g.set_ylabels(y)
+	g.set_ylabels(y)
 	g.set_xlabels(x)
 	#g.set_xticklabels(rotation=45) #can turn off if you don't need axes rotated
 	g.set(title ='Mean Differences in '+y)
@@ -169,8 +169,8 @@ def scatter_plot(df,x,y,z, tt_interactive, output_directory):
 	tooltip= tt_interactive
 	).interactive().properties(
 	title='Scatterplot of '+x+' by '+y)
-    	chart.save(output_directory+'Scatterplot of '+x+' by '+y+'.html')
-    	return chart
+	chart.save(output_directory+'Scatterplot of '+x+' by '+y+'.html')
+	return chart
 
 def scatter_matrix(df,x,z, output_directory):
 	'''Requires altair and altair saver. Plots a scatter matrix of a list of variables (x), where z 
@@ -207,8 +207,8 @@ def regression_plot(df,x,y,z, output_directory):
 	g = sns.lmplot(x=x, y=y, hue=z,
 			   data=df)
 	g.set(title ='Regression Plot of '+x+' and '+y)
-        g.savefig(output_directory+ 'Regression Plot of '+x+' and '+y+'.png')
-        return g
+	g.savefig(output_directory+ 'Regression Plot of '+x+' and '+y+'.png')
+	return g
 
 def boxplot(df,x,y,z):
 	'''Requires seaborn. Plots a boxplot of y by x with marks for outliers,, where z 
