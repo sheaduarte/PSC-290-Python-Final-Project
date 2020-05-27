@@ -1,8 +1,9 @@
 Subject
 Group
-Condition
 MNA
+Bilingual
 Age_mos
 TiS_mos
 Age_act_mos
 Region
+MNA_diff

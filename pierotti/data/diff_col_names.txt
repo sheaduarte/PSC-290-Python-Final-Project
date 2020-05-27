@@ -1,0 +1,9 @@
+ID
+Group
+Mean Amplitude
+Bilingual
+Age (months)
+Time in Sound (months)
+Age of Activation (months)
+Region
+Mean Amplitude Difference

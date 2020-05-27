@@ -1,0 +1,8 @@
+ID
+Group
+Condition
+Mean Amplitude
+Age (months)
+Time in Sound (months)
+Age of Activation (months)
+Region
