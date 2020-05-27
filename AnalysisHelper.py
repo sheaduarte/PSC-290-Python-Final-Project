@@ -68,23 +68,24 @@ def remove_outliers(df, var, outlier_constant = 1.5):
 	return(cleanTrials)		
 	
 def EyeTracking_MasterDF(df, currentFixationIdx, nearestIAVar, currentFixDurationVar, fixationTotalVar, trialVar = 'trial', participantVar = 'participant'):
-    EyeDF_cols = ['trial','participant', 'total_fixations', 'latency', 'fixation0']
-    EyeTracking_MasterDF = pd.DataFrame(columns = EyeDF_cols)
-    Fix0 = df[df[currentFixationIdx] == 1]
-    EyeTracking_MasterDF['trial'] = Fix0[trialVar]
-    EyeTracking_MasterDF['participant'] = Fix0[participantVar]
-    EyeTracking_MasterDF['total_fixations'] = Fix0[fixationTotalVar]
-    EyeTracking_MasterDF['latency'] = Fix0[currentFixDurationVar]
-    EyeTracking_MasterDF['fixation0'] = Fix0[nearestIAVar]
-    keep_cols = [trialVar, participantVar, nearestIAVar, currentFixDurationVar]
-    dfs = [EyeTracking_MasterDF]
-    for x in list(range(2,7)):
-        FixDFs = df[df[currentFixationIdx] == x]
-        FixDFs = FixDFs[keep_cols]
-        FixDFs = FixDFs.rename(columns = {nearestIAVar:'fixation' + str(x-1), currentFixDurationVar:'fix_dur_' + str(x-1)})
-        dfs.append(FixDFs)
-    EyeTracking_MasterDF = reduce(lambda left,right: pd.merge(left,right,on=['trial', 'participant'], how='outer'), dfs)
-    return EyeTracking_MasterDF
+	EyeDF_cols = ['trial','participant', 'total_fixations', 'latency', 'fixation0']
+	EyeTracking_MasterDF = pd.DataFrame(columns = EyeDF_cols)
+	Fix0 = df[df[currentFixationIdx] == 1]
+	EyeTracking_MasterDF['trial'] = Fix0[trialVar]
+	EyeTracking_MasterDF['participant'] = Fix0[participantVar]
+	EyeTracking_MasterDF['total_fixations'] = Fix0[fixationTotalVar]
+	EyeTracking_MasterDF['latency'] = Fix0[currentFixDurationVar]
+	EyeTracking_MasterDF['fixation0'] = Fix0[nearestIAVar]
+	keep_cols = [trialVar, participantVar, nearestIAVar, currentFixDurationVar]
+	dfs = [EyeTracking_MasterDF]
+	for x in list(range(2,7)):
+		FixDFs = df[df[currentFixationIdx] == x]
+		FixDFs = FixDFs[keep_cols]
+		FixDFs = FixDFs.rename(columns = {nearestIAVar:'fixation' + str(x-1), currentFixDurationVar:'fix_dur_' + str(x-1)})
+		dfs.append(FixDFs)
+	EyeTracking_MasterDF = reduce(lambda left,right: pd.merge(left,right,on=['trial', 'participant'], how='outer'), dfs)
+	EyeTracking_MasterDF = EyeTracking_MasterDF.iloc[:, [0,1,2,3,4,5,6,8,9,11,12,14]]
+	return EyeTracking_MasterDF
 		
 def First_Fixation(df, fixation1Var, fixation2Var, fixation3Var, fixationIA = 'fixationIA'):
 	'''Used to disregard first fixations that are on the fixation cross (the fixation interest area (IA)) 
@@ -111,8 +112,8 @@ def histogram(df, y):
 	'''Requires altair and altair saver. Plots a histogram of y and automatically saves a html file 
 	to output directory. Won't work if df has more than 5000 rows.'''
 	if df.shape[0] >5000:
-        	return 'The dataframe is too large. Subset the data or use a different dataframe.'
-    	else:
+			return 'The dataframe is too large. Subset the data or use a different dataframe.'
+	else:
 		chart = alt.Chart(df).mark_bar(
 		).encode(alt.X(y,title= ylab[0], bin = True), y = 'count()', 
 		).properties(title = 'Distribution of '+y)
@@ -140,9 +141,9 @@ def stacked_bar_graph(df,id_vars_list, value_vars_list, var_name_str, value_name
 	file to output directory. '''
 	# convert df to long format:
 	long_df = pd.melt(df, id_vars = id_vars_list, 
-			    value_vars = value_vars_list, 
-			    var_name = var_name_str, 
-			    value_name = value_name_str)
+				value_vars = value_vars_list, 
+				var_name = var_name_str, 
+				value_name = value_name_str)
 	# plot stacked bar graph:
 	chart = alt.Chart(long_df).mark_bar().encode(
 		x = x,
@@ -150,8 +151,8 @@ def stacked_bar_graph(df,id_vars_list, value_vars_list, var_name_str, value_name
 		color = alt.Color(z, 
 		scale = alt.Scale(scheme='dark2')) #changes color scheme. 
 		# see https://vega.github.io/vega/docs/schemes/ for examples
-	    	).properties(
-	    	title = 'Proportions of '+z+' by '+x)
+			).properties(
+			title = 'Proportions of '+z+' by '+x)
 	chart.save(output_directory+'Proportions of '+z+' by '+x+'.html')
 	return chart
 
@@ -206,7 +207,7 @@ def regression_plot(df,x,y,z):
 			   data=df)
 	g.savefig(output_directory+ 'Regression Plot of '+x+' and '+y+'.png')
 	g.set(title ='Regression Plot of '+x+' and '+y)
-    return g
+	return g
 
 def boxplot(df,x,y,z):
 	'''Requires seaborn. Plots a boxplot of y by x with marks for outliers,, where z 
