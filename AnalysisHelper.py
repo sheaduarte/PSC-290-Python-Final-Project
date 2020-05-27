@@ -154,8 +154,8 @@ def stacked_bar_graph(df,id_vars_list, value_vars_list, var_name_str, value_name
 		# see https://vega.github.io/vega/docs/schemes/ for examples
 	    ).properties(
 		title = 'Proportions of '+z+' by '+x)
-    	chart.save(output_directory+'Proportions of 'z+' by '+x+'.html')
-    	return chart
+	chart.save(output_directory+'Proportions of '+z+' by '+x+'.html')
+	return chart
 
 def scatter_plot(df,x,y,z, tt_interactive, output_directory):
 	'''Requires altair and altair saver. Plots a scatter plot of x and y, where z 
