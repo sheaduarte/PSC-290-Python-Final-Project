@@ -115,7 +115,7 @@ def histogram(df, y, output_directory):
         	return 'The dataframe is too large. Subset the data or use a different dataframe.'
 	else:
         	chart = alt.Chart(df).mark_bar(
-        	).encode(alt.X(y,title= ylab[0], bin = True), y = 'count()', 
+        	).encode(alt.X(y,title= y, bin = True), y = 'count()', 
         	).properties(title = 'Distribution of '+y)
         	chart.save(output_directory+'Histogram of '+y+'.html')
         	return chart
@@ -128,8 +128,8 @@ def bar_graph(df,x,y,z, output_directory):
                 data=df,
                 height=6, kind="bar")
     	g.despine(left=True)
-    	g.set_ylabels(ylab[0])
-	g.set_xlabels(xlab[0])
+    	g.set_ylabels(y)
+	g.set_xlabels(x)
 	#g.set_xticklabels(rotation=45) #can turn off if you don't need axes rotated
 	g.set(title ='Mean Differences in '+y)
 	g.savefig(output_directory+ 'Mean Differences in '+y+'.png')
