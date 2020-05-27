@@ -127,7 +127,7 @@ def bar_graph(df,x,y,z, output_directory):
                 hue=z, # use this to group, if needed
                 data=df,
                 height=6, kind="bar")
-    	g.despine(left=True)
+	g.despine(left=True)
     	g.set_ylabels(y)
 	g.set_xlabels(x)
 	#g.set_xticklabels(rotation=45) #can turn off if you don't need axes rotated
@@ -169,8 +169,8 @@ def scatter_plot(df,x,y,z, tt_interactive, output_directory):
 	tooltip= tt_interactive
 	).interactive().properties(
 	title='Scatterplot of '+x+' by '+y)
-    chart.save(output_directory+'Scatterplot of '+x+' by '+y+'.html')
-    return chart
+    	chart.save(output_directory+'Scatterplot of '+x+' by '+y+'.html')
+    	return chart
 
 def scatter_matrix(df,x,z, output_directory):
 	'''Requires altair and altair saver. Plots a scatter matrix of a list of variables (x), where z 
