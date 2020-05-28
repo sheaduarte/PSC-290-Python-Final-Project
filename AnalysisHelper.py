@@ -67,44 +67,6 @@ def remove_outliers(df, var, outlier_constant = 1.5):
 	cleanTrials = df[df[var].between(lowerOutliers, upperOutliers)]
 	return(cleanTrials)		
 	
-def EyeTracking_MasterDF(df, currentFixationIdx, nearestIAVar, currentFixDurationVar, fixationTotalVar, trialVar = 'trial', participantVar = 'participant'):
-	EyeDF_cols = ['trial','participant', 'total_fixations', 'latency', 'fixation0']
-	EyeTracking_MasterDF = pd.DataFrame(columns = EyeDF_cols)
-	Fix0 = df[df[currentFixationIdx] == 1]
-	EyeTracking_MasterDF['trial'] = Fix0[trialVar]
-	EyeTracking_MasterDF['participant'] = Fix0[participantVar]
-	EyeTracking_MasterDF['total_fixations'] = Fix0[fixationTotalVar]
-	EyeTracking_MasterDF['latency'] = Fix0[currentFixDurationVar]
-	EyeTracking_MasterDF['fixation0'] = Fix0[nearestIAVar]
-	keep_cols = [trialVar, participantVar, nearestIAVar, currentFixDurationVar]
-	dfs = [EyeTracking_MasterDF]
-	for x in list(range(2,7)):
-		FixDFs = df[df[currentFixationIdx] == x]
-		FixDFs = FixDFs[keep_cols]
-		FixDFs = FixDFs.rename(columns = {nearestIAVar:'fixation' + str(x-1), currentFixDurationVar:'fix_dur_' + str(x-1)})
-		dfs.append(FixDFs)
-	EyeTracking_MasterDF = reduce(lambda left,right: pd.merge(left,right,on=['trial', 'participant'], how='outer'), dfs)
-	EyeTracking_MasterDF = EyeTracking_MasterDF.iloc[:, [0,1,2,3,4,5,6,8,9,11,12,14]]
-	return EyeTracking_MasterDF
-		
-def First_Fixation(df, fixation1Var, fixation2Var, fixation3Var, fixationIA = 'fixationIA'):
-	'''Used to disregard first fixations that are on the fixation cross (the fixation interest area (IA)) 
-	so that first fixations refer to the first non-fixation interest area that participants look at'''
-	df['first_fixation'] = df[fixation1Var]
-	df['first_fixation'] = df['first_fixation'].replace(fixationIA, df[fixation2Var])
-	df['first_fixation'] = df['first_fixation'].replace(fixationIA, df[fixation3Var])
-	return df
-	
-def Add_FirstFixDwell(df, fixation1Var, fixation2Var, fixDuration1, fixDuration2, fixDuration3, fixationIA = 'fixationIA'):
-	idx = df.index[df[fixation1Var]==fixationIA]
-	df['first_fix_dwell'] = df[fixDuration1]
-	df.loc[idx, 'first_fix_dwell'] = df[fixDuration2]
-	idx2 = df.index[(df[fixation1Var]==fixationIA) & (df[fixation2Var]==fixationIA)]
-	df.loc[idx2, 'first_fix_dwell'] = df[fixDuration3]
-	return df
-	
-	
-	
 	
 ########## Creating Figures ##########
 
@@ -224,18 +186,74 @@ def boxplot(df,x,y,z):
 
 ##### Data Subsetting for Eyetracking Data Figures #####
 
-def FirstFixProportions(df, condition_list, IA_1='targetIA', IA_2='distIA', trialVar = 'trial'):
-	'''Uses dataframe of count values & finds proportion of first fixations to two interest areas, 
-	not suitable for more than two interest areas'''
-	result = pd.DataFrame()
-	for condition in condition_list:
-		target = (df[(trialVar, condition)][IA_1])/((df[(trialVar,condition)][IA_2])+
-														  (df[(trialVar, condition)][IA_1]))
-		distractor = (df[(trialVar, condition)][IA_2])/((df[(trialVar, condition)][IA_2])+
-															(df[(trialVar, condition)][IA_1]))
-		Proportion_Dict = {'condition':condition,'target': target,'distractor':distractor}
-		result = result.append(Proportion_Dict, ignore_index =True)
-	return result
+
+class EyeTrackingHelper:
+	def __init__(self, RawEyeDF):
+		'''Takes a raw eyetracking dataframe that has had columns filtered and renamed'''
+		self.RawEyeDF = RawEyeDF
+		
+	def CleanEyeTracking_MasterDF(self, currentFixationIdx, nearestIAVar, currentFixDurationVar, fixationTotalVar, trialVar = 'trial', participantVar = 'participant'):
+		EyeDF_cols = ['trial','participant', 'total_fixations', 'latency', 'fixation0']
+		EyeTracking_MasterDF = pd.DataFrame(columns = EyeDF_cols)
+		Fix0 = self.RawEyeDF[self.RawEyeDF[currentFixationIdx] == 1]
+		EyeTracking_MasterDF['trial'] = Fix0[trialVar]
+		EyeTracking_MasterDF['participant'] = Fix0[participantVar]
+		EyeTracking_MasterDF['total_fixations'] = Fix0[fixationTotalVar]
+		EyeTracking_MasterDF['latency'] = Fix0[currentFixDurationVar]
+		EyeTracking_MasterDF['fixation0'] = Fix0[nearestIAVar]
+		keep_cols = [trialVar, participantVar, nearestIAVar, currentFixDurationVar]
+		dfs = [EyeTracking_MasterDF]
+		for x in list(range(2,7)):
+			FixDFs = self.RawEyeDF[self.RawEyeDF[currentFixationIdx] == x]
+			FixDFs = FixDFs[keep_cols]
+			FixDFs = FixDFs.rename(columns = {nearestIAVar:'fixation' + str(x-1), currentFixDurationVar:'fix_dur_' + str(x-1)})
+			dfs.append(FixDFs)
+		EyeTracking_MasterDF = reduce(lambda left,right: pd.merge(left,right,on=['trial', 'participant'], how='outer'), dfs)
+		EyeTracking_MasterDF = EyeTracking_MasterDF.iloc[:, [0,1,2,3,4,5,6,8,9,11,12,14]]
+		EyeTracking_MasterDF = pd.DataFrame(EyeTracking_MasterDF)
+		return EyeTracking_MasterDF
+		
+	def Add_First_Fixation(self, df, fixation1Var, fixation2Var, fixation3Var, fixDuration1, fixDuration2, fixDuration3, fixationIA = 'fixationIA'):
+		'''If dat has an interest area on fixation, this function can be used to disregard first fixations on fixation IAs 
+		so that first fixations refer to the first non-fixation interest area that participants look at'''
+		df['first_fixation'] = df[fixation1Var]
+		df['first_fixation'] = df['first_fixation'].replace(fixationIA, df[fixation2Var])
+		df['first_fixation'] = df['first_fixation'].replace(fixationIA, df[fixation3Var])
+		idx = df.index[df[fixation1Var]==fixationIA]
+		df['first_fix_dwell'] = df[fixDuration1]
+		df.loc[idx, 'first_fix_dwell'] = df[fixDuration2]
+		idx2 = df.index[(df[fixation1Var]==fixationIA) & (df[fixation2Var]==fixationIA)]
+		df.loc[idx2, 'first_fix_dwell'] = df[fixDuration3]
+		df = pd.DataFrame(df)
+		return df
+
+	def FirstFixProportions(self, df, condition_list, IA_1='targetIA', IA_2='distIA', trialVar = 'trial'):
+		'''Uses dataframe of count values & finds proportion of first fixations to two interest areas, 
+		not suitable for more than two interest areas'''
+		result = pd.DataFrame()
+		for condition in condition_list:
+			target = (df[(trialVar, condition)][IA_1])/((df[(trialVar,condition)][IA_2])+
+															  (df[(trialVar, condition)][IA_1]))
+			distractor = (df[(trialVar, condition)][IA_2])/((df[(trialVar, condition)][IA_2])+
+																(df[(trialVar, condition)][IA_1]))
+			Proportion_Dict = {'condition':condition,'target': target,'distractor':distractor}
+			result = result.append(Proportion_Dict, ignore_index =True)
+		return result
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
