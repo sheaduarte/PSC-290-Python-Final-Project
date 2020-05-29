@@ -108,14 +108,14 @@ def Add_FirstFixDwell(df, fixation1Var, fixation2Var, fixDuration1, fixDuration2
 	
 ########## Creating Figures ##########
 
-def histogram(df, y, output_directory):
+def histogram(df, y, output_directory, custom_scheme = 'dark2'):
 	'''Requires altair and altair saver. Plots a histogram of y and automatically saves a html file 
 	to output directory. Won't work if df has more than 5000 rows.'''
 	if df.shape[0] >5000:
         	return 'The dataframe is too large. Subset the data or use a different dataframe.'
 	else:
         	chart = alt.Chart(df).mark_bar(
-        	).encode(alt.X(y,title= y, bin = True), y = 'count()', 
+        	).encode(alt.X(y,title= y, bin = True, color=alt.Color(y, scale=alt.Scale(scheme=custom_scheme)), y = 'count()', 
         	).properties(title = 'Distribution of '+y)
         	chart.save(output_directory+'Histogram of '+y+'.html')
         	return chart
