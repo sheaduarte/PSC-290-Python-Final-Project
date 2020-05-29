@@ -67,44 +67,6 @@ def remove_outliers(df, var, outlier_constant = 1.5):
 	cleanTrials = df[df[var].between(lowerOutliers, upperOutliers)]
 	return(cleanTrials)		
 	
-def EyeTracking_MasterDF(df, currentFixationIdx, nearestIAVar, currentFixDurationVar, fixationTotalVar, trialVar = 'trial', participantVar = 'participant'):
-	EyeDF_cols = ['trial','participant', 'total_fixations', 'latency', 'fixation0']
-	EyeTracking_MasterDF = pd.DataFrame(columns = EyeDF_cols)
-	Fix0 = df[df[currentFixationIdx] == 1]
-	EyeTracking_MasterDF['trial'] = Fix0[trialVar]
-	EyeTracking_MasterDF['participant'] = Fix0[participantVar]
-	EyeTracking_MasterDF['total_fixations'] = Fix0[fixationTotalVar]
-	EyeTracking_MasterDF['latency'] = Fix0[currentFixDurationVar]
-	EyeTracking_MasterDF['fixation0'] = Fix0[nearestIAVar]
-	keep_cols = [trialVar, participantVar, nearestIAVar, currentFixDurationVar]
-	dfs = [EyeTracking_MasterDF]
-	for x in list(range(2,7)):
-		FixDFs = df[df[currentFixationIdx] == x]
-		FixDFs = FixDFs[keep_cols]
-		FixDFs = FixDFs.rename(columns = {nearestIAVar:'fixation' + str(x-1), currentFixDurationVar:'fix_dur_' + str(x-1)})
-		dfs.append(FixDFs)
-	EyeTracking_MasterDF = reduce(lambda left,right: pd.merge(left,right,on=['trial', 'participant'], how='outer'), dfs)
-	EyeTracking_MasterDF = EyeTracking_MasterDF.iloc[:, [0,1,2,3,4,5,6,8,9,11,12,14]]
-	return EyeTracking_MasterDF
-		
-def First_Fixation(df, fixation1Var, fixation2Var, fixation3Var, fixationIA = 'fixationIA'):
-	'''Used to disregard first fixations that are on the fixation cross (the fixation interest area (IA)) 
-	so that first fixations refer to the first non-fixation interest area that participants look at'''
-	df['first_fixation'] = df[fixation1Var]
-	df['first_fixation'] = df['first_fixation'].replace(fixationIA, df[fixation2Var])
-	df['first_fixation'] = df['first_fixation'].replace(fixationIA, df[fixation3Var])
-	return df
-	
-def Add_FirstFixDwell(df, fixation1Var, fixation2Var, fixDuration1, fixDuration2, fixDuration3, fixationIA = 'fixationIA'):
-	idx = df.index[df[fixation1Var]==fixationIA]
-	df['first_fix_dwell'] = df[fixDuration1]
-	df.loc[idx, 'first_fix_dwell'] = df[fixDuration2]
-	idx2 = df.index[(df[fixation1Var]==fixationIA) & (df[fixation2Var]==fixationIA)]
-	df.loc[idx2, 'first_fix_dwell'] = df[fixDuration3]
-	return df
-	
-	
-	
 	
 ########## Creating Figures ##########
 
@@ -120,9 +82,10 @@ def histogram(df, y, output_directory):
         	chart.save(output_directory+'Histogram of '+y+'.html')
         	return chart
 
-def bar_graph(df,x,y,z, output_directory):
+def bar_graph(df,x,y,z, output_directory, custom_scheme = 'deep'):
 	'''Requires seaborn. Plots a bar graph of x by y, grouped by z if desired. Automatically saves 
 	a png file to output directory. '''
+	sns.set_palette(custom_scheme)
 	g = sns.catplot(x=x, y=y, 
                 hue=z, # use this to group, if needed
                 data=df,
@@ -135,7 +98,7 @@ def bar_graph(df,x,y,z, output_directory):
 	g.savefig(output_directory+ 'Mean Differences in '+y+'.png')
 	return g
 
-def stacked_bar_graph(df,id_vars_list, value_vars_list, var_name_str, value_name_str, x, y, z, output_directory):
+def stacked_bar_graph(df,id_vars_list, value_vars_list, var_name_str, value_name_str, x, y, z, output_directory, custom_scheme = 'dark2'):
 	'''Requires pandas, altair and altair saver. First converts a df to long format using melt. Next, plots a 
 	standardized stacked bar graph of x by y, where z is different subgroups within X. Automatically saves a html 
 	file to output directory. '''
@@ -150,14 +113,14 @@ def stacked_bar_graph(df,id_vars_list, value_vars_list, var_name_str, value_name
 		x = x,
 		y = 'sum('+y+')',
 		color = alt.Color(z, 
-		scale = alt.Scale(scheme='dark2')) #changes color scheme. 
+		scale = alt.Scale(scheme=custom_scheme)) #changes color scheme. 
 		# see https://vega.github.io/vega/docs/schemes/ for examples
 	    ).properties(
 		title = 'Proportions of '+z+' by '+x)
 	chart.save(output_directory+'Proportions of '+z+' by '+x+'.html')
 	return chart
 
-def scatter_plot(df,x,y,z, tt_interactive, output_directory):
+def scatter_plot(df,x,y,z, tt_interactive, output_directory, custom_scheme = 'dark2'):
 	'''Requires altair and altair saver. Plots a scatter plot of x and y, where z 
 	is a factor that changes point color (optional). Tooltip functionality enabled, but will 
 	need to specify desired columns ahead of time. Automatically saves a html file to output directory. '''
@@ -165,14 +128,14 @@ def scatter_plot(df,x,y,z, tt_interactive, output_directory):
 	x=x,
 	y=y,
 	color=alt.Color(z, 
-		scale=alt.Scale(scheme='pastel1')),
+		scale=alt.Scale(scheme=custom_scheme)),
 	tooltip= tt_interactive
 	).interactive().properties(
 	title='Scatterplot of '+x+' by '+y)
 	chart.save(output_directory+'Scatterplot of '+x+' by '+y+'.html')
 	return chart
 
-def scatter_matrix(df,x,z, output_directory):
+def scatter_matrix(df,x,z, output_directory, custom_scheme = 'dark2'):
 	'''Requires altair and altair saver. Plots a scatter matrix of a list of variables (x), where z 
 	is a factor that changes point color (optional). Automatically saves a html file to output directory. '''
 	x_inverse = x[::-1] 
@@ -180,7 +143,7 @@ def scatter_matrix(df,x,z, output_directory):
 		alt.X(alt.repeat("column"), type='quantitative'),
 		alt.Y(alt.repeat("row"), type='quantitative'),
 		color=alt.Color(z+':N', 
-		scale=alt.Scale(scheme='accent'))
+		scale=alt.Scale(scheme=custom_scheme))
 	).properties(
 		width=150,
 		height=150
@@ -191,9 +154,10 @@ def scatter_matrix(df,x,z, output_directory):
 	chart.save(output_directory+'Scatterplot Matrix.html')
 	return chart
 
-def violin(df,x,y,z):
+def violin(df,x,y,z, custom_scheme = 'deep'):
 	'''Requires seaborn. Plots a violin distribution plot of y by x	 where z 
 	is a factor that allows for grouping, if desired. DOES NOT AUTOMATICALLY SAVE OUTPUT. '''
+	sns.set_palette(custom_scheme)
 	ax = sns.violinplot(x=x, y=y, 
 		hue=z, #optional
 		data=df)
@@ -201,18 +165,20 @@ def violin(df,x,y,z):
 	ax.set(title ='Distribution of '+y+' by '+x)
 	return ax
 
-def regression_plot(df,x,y,z, output_directory):
+def regression_plot(df,x,y,z, output_directory, custom_scheme = 'deep'):
 	'''Requires seaborn. Plots a regression plot of x by y with regression lines, where z 
 	is a factor that allows for grouping, if desired. Automatically saves output as a png file. '''
+	sns.set_palette(custom_scheme)
 	g = sns.lmplot(x=x, y=y, hue=z,
 		       data=df)
 	g.set(title ='Regression Plot of '+x+' and '+y)
 	g.savefig(output_directory+ 'Regression Plot of '+x+' and '+y+'.png')
 	return g
 
-def boxplot(df,x,y,z):
+def boxplot(df,x,y,z, custom_scheme = 'deep'):
 	'''Requires seaborn. Plots a boxplot of y by x with marks for outliers,, where z 
 	is a factor that allows for grouping, if desired. DOES NOT AUTOMATICALLY SAVE OUTPUT. '''
+	sns.set_palette(custom_scheme)
 	ax = sns.boxplot(x=x, y=y,
 			 hue=z,
 			 data=df)
@@ -224,18 +190,74 @@ def boxplot(df,x,y,z):
 
 ##### Data Subsetting for Eyetracking Data Figures #####
 
-def FirstFixProportions(df, condition_list, IA_1='targetIA', IA_2='distIA', trialVar = 'trial'):
-	'''Uses dataframe of count values & finds proportion of first fixations to two interest areas, 
-	not suitable for more than two interest areas'''
-	result = pd.DataFrame()
-	for condition in condition_list:
-		target = (df[(trialVar, condition)][IA_1])/((df[(trialVar,condition)][IA_2])+
-														  (df[(trialVar, condition)][IA_1]))
-		distractor = (df[(trialVar, condition)][IA_2])/((df[(trialVar, condition)][IA_2])+
-															(df[(trialVar, condition)][IA_1]))
-		Proportion_Dict = {'condition':condition,'target': target,'distractor':distractor}
-		result = result.append(Proportion_Dict, ignore_index =True)
-	return result
+
+class EyeTrackingHelper:
+	def __init__(self, RawEyeDF):
+		'''Takes a raw eyetracking dataframe that has had columns filtered and renamed'''
+		self.RawEyeDF = RawEyeDF
+		
+	def CleanEyeTracking_MasterDF(self, currentFixationIdx, nearestIAVar, currentFixDurationVar, fixationTotalVar, trialVar = 'trial', participantVar = 'participant'):
+		EyeDF_cols = ['trial','participant', 'total_fixations', 'latency', 'fixation0']
+		EyeTracking_MasterDF = pd.DataFrame(columns = EyeDF_cols)
+		Fix0 = self.RawEyeDF[self.RawEyeDF[currentFixationIdx] == 1]
+		EyeTracking_MasterDF['trial'] = Fix0[trialVar]
+		EyeTracking_MasterDF['participant'] = Fix0[participantVar]
+		EyeTracking_MasterDF['total_fixations'] = Fix0[fixationTotalVar]
+		EyeTracking_MasterDF['latency'] = Fix0[currentFixDurationVar]
+		EyeTracking_MasterDF['fixation0'] = Fix0[nearestIAVar]
+		keep_cols = [trialVar, participantVar, nearestIAVar, currentFixDurationVar]
+		dfs = [EyeTracking_MasterDF]
+		for x in list(range(2,7)):
+			FixDFs = self.RawEyeDF[self.RawEyeDF[currentFixationIdx] == x]
+			FixDFs = FixDFs[keep_cols]
+			FixDFs = FixDFs.rename(columns = {nearestIAVar:'fixation' + str(x-1), currentFixDurationVar:'fix_dur_' + str(x-1)})
+			dfs.append(FixDFs)
+		EyeTracking_MasterDF = reduce(lambda left,right: pd.merge(left,right,on=['trial', 'participant'], how='outer'), dfs)
+		EyeTracking_MasterDF = EyeTracking_MasterDF.iloc[:, [0,1,2,3,4,5,6,8,9,11,12,14]]
+		EyeTracking_MasterDF = pd.DataFrame(EyeTracking_MasterDF)
+		return EyeTracking_MasterDF
+		
+	def Add_First_Fixation(self, df, fixation1Var, fixation2Var, fixation3Var, fixDuration1, fixDuration2, fixDuration3, fixationIA = 'fixationIA'):
+		'''If dat has an interest area on fixation, this function can be used to disregard first fixations on fixation IAs 
+		so that first fixations refer to the first non-fixation interest area that participants look at'''
+		df['first_fixation'] = df[fixation1Var]
+		df['first_fixation'] = df['first_fixation'].replace(fixationIA, df[fixation2Var])
+		df['first_fixation'] = df['first_fixation'].replace(fixationIA, df[fixation3Var])
+		idx = df.index[df[fixation1Var]==fixationIA]
+		df['first_fix_dwell'] = df[fixDuration1]
+		df.loc[idx, 'first_fix_dwell'] = df[fixDuration2]
+		idx2 = df.index[(df[fixation1Var]==fixationIA) & (df[fixation2Var]==fixationIA)]
+		df.loc[idx2, 'first_fix_dwell'] = df[fixDuration3]
+		df = pd.DataFrame(df)
+		return df
+
+	def FirstFixProportions(self, df, condition_list, IA_1='targetIA', IA_2='distIA', trialVar = 'trial'):
+		'''Uses dataframe of count values & finds proportion of first fixations to two interest areas, 
+		not suitable for more than two interest areas'''
+		result = pd.DataFrame()
+		for condition in condition_list:
+			target = (df[(trialVar, condition)][IA_1])/((df[(trialVar,condition)][IA_2])+
+															  (df[(trialVar, condition)][IA_1]))
+			distractor = (df[(trialVar, condition)][IA_2])/((df[(trialVar, condition)][IA_2])+
+																(df[(trialVar, condition)][IA_1]))
+			Proportion_Dict = {'condition':condition,'target': target,'distractor':distractor}
+			result = result.append(Proportion_Dict, ignore_index =True)
+		return result
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
