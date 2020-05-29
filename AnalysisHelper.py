@@ -242,6 +242,7 @@ class EyeTrackingHelper:
 																(df[(trialVar, condition)][IA_1]))
 			Proportion_Dict = {'condition':condition,'target': target,'distractor':distractor}
 			result = result.append(Proportion_Dict, ignore_index =True)
+			result = pd.DataFrame(result)
 		return result
 
 
