@@ -231,19 +231,19 @@ class EyeTrackingHelper:
 		df = pd.DataFrame(df)
 		return df
 
-	def FirstFixProportions(self, df, condition_list, IA_1='targetIA', IA_2='distIA', trialVar = 'trial'):
-		'''Uses dataframe of count values & finds proportion of first fixations to two interest areas, 
-		not suitable for more than two interest areas'''
-		result = pd.DataFrame()
-		for condition in condition_list:
-			target = (df[(trialVar, condition)][IA_1])/((df[(trialVar,condition)][IA_2])+
-															  (df[(trialVar, condition)][IA_1]))
-			distractor = (df[(trialVar, condition)][IA_2])/((df[(trialVar, condition)][IA_2])+
-																(df[(trialVar, condition)][IA_1]))
-			Proportion_Dict = {'condition':condition,'target': target,'distractor':distractor}
-			result = result.append(Proportion_Dict, ignore_index =True)
-			result = pd.DataFrame(result)
-		return result
+def FirstFixProportions(df, condition_list, IA_1='targetIA', IA_2='distIA', trialVar = 'trial'):
+	'''Uses dataframe of count values & finds proportion of first fixations to two interest areas, 
+	not suitable for more than two interest areas'''
+	result = pd.DataFrame()
+	for condition in condition_list:
+		target = (df[(trialVar, condition)][IA_1])/((df[(trialVar,condition)][IA_2])+
+														  (df[(trialVar, condition)][IA_1]))
+		distractor = (df[(trialVar, condition)][IA_2])/((df[(trialVar, condition)][IA_2])+
+															(df[(trialVar, condition)][IA_1]))
+		Proportion_Dict = {'condition':condition,'target': target,'distractor':distractor}
+		result = result.append(Proportion_Dict, ignore_index =True)
+		result = pd.DataFrame(result)
+	return result
 
 
 

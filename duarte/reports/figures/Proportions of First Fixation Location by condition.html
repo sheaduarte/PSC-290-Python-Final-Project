@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    .error {
+        color: red;
+    }
+  </style>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm//vega@5"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm//vega-lite@4.8.1"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm//vega-embed@6"></script>
+</head>
+<body>
+  <div id="vis"></div>
+  <script>
+    (function(vegaEmbed) {
+      var spec = {"config": {"view": {"continuousWidth": 400, "continuousHeight": 300}}, "data": {"name": "data-4ca12d1998a1f6fb7dc258fd33ab9491"}, "mark": "bar", "encoding": {"color": {"type": "nominal", "field": "First Fixation Location", "scale": {"scheme": "pastel"}}, "x": {"type": "nominal", "field": "condition"}, "y": {"type": "quantitative", "aggregate": "sum", "field": "value"}}, "title": "Proportions of First Fixation Location by condition", "$schema": "https://vega.github.io/schema/vega-lite/v4.8.1.json", "datasets": {"data-4ca12d1998a1f6fb7dc258fd33ab9491": [{"condition": "Hcong", "First Fixation Location": "distractor", "value": 0.2609942638623327}, {"condition": "HcongWN", "First Fixation Location": "distractor", "value": 0.24574669187145556}, {"condition": "HinCong", "First Fixation Location": "distractor", "value": 0.39575289575289574}, {"condition": "HinCongWN", "First Fixation Location": "distractor", "value": 0.3745173745173745}, {"condition": "Lcong", "First Fixation Location": "distractor", "value": 0.6335877862595419}, {"condition": "LcongWN", "First Fixation Location": "distractor", "value": 0.6186770428015564}, {"condition": "LinCong", "First Fixation Location": "distractor", "value": 0.7747035573122529}, {"condition": "LinCongWN", "First Fixation Location": "distractor", "value": 0.7604562737642585}, {"condition": "Hcong", "First Fixation Location": "target", "value": 0.7390057361376673}, {"condition": "HcongWN", "First Fixation Location": "target", "value": 0.7542533081285444}, {"condition": "HinCong", "First Fixation Location": "target", "value": 0.6042471042471043}, {"condition": "HinCongWN", "First Fixation Location": "target", "value": 0.6254826254826255}, {"condition": "Lcong", "First Fixation Location": "target", "value": 0.366412213740458}, {"condition": "LcongWN", "First Fixation Location": "target", "value": 0.38132295719844356}, {"condition": "LinCong", "First Fixation Location": "target", "value": 0.22529644268774704}, {"condition": "LinCongWN", "First Fixation Location": "target", "value": 0.23954372623574144}]}};
+      var embedOpt = {"mode": "vega-lite"};
+
+      function showError(el, error){
+          el.innerHTML = ('<div class="error" style="color:red;">'
+                          + '<p>JavaScript Error: ' + error.message + '</p>'
+                          + "<p>This usually means there's a typo in your chart specification. "
+                          + "See the javascript console for the full traceback.</p>"
+                          + '</div>');
+          throw error;
+      }
+      const el = document.getElementById('vis');
+      vegaEmbed("#vis", spec, embedOpt)
+        .catch(error => showError(el, error));
+    })(vegaEmbed);
+
+  </script>
+</body>
+</html>
