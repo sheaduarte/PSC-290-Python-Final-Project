@@ -82,14 +82,14 @@ def histogram(df, y, output_directory):
         	chart.save(output_directory+'Histogram of '+y+'.html')
         	return chart
 
-def bar_graph(df,x,y,z, output_directory, custom_scheme = 'deep'):
+def bar_graph(df,x,y,z, output_directory, custom_scheme = 'deep', order = None):
 	'''Requires seaborn. Plots a bar graph of x by y, grouped by z if desired. Automatically saves 
 	a png file to output directory. '''
 	sns.set_palette(custom_scheme)
 	g = sns.catplot(x=x, y=y, 
                 hue=z, # use this to group, if needed
                 data=df,
-                height=6, kind="bar")
+                height=6, kind="bar", order = order)
 	g.despine(left=True)
 	g.set_ylabels(y)
 	g.set_xlabels(x)
@@ -98,7 +98,7 @@ def bar_graph(df,x,y,z, output_directory, custom_scheme = 'deep'):
 	g.savefig(output_directory+ 'Mean Differences in '+y+'.png')
 	return g
 
-def stacked_bar_graph(df,id_vars_list, value_vars_list, var_name_str, value_name_str, x, y, z, output_directory, custom_scheme = 'dark2'):
+def stacked_bar_graph(df,id_vars_list, value_vars_list, var_name_str, value_name_str, x, output_directory, custom_scheme = 'dark2'):
 	'''Requires pandas, altair and altair saver. First converts a df to long format using melt. Next, plots a 
 	standardized stacked bar graph of x by y, where z is different subgroups within X. Automatically saves a html 
 	file to output directory. '''
@@ -111,13 +111,13 @@ def stacked_bar_graph(df,id_vars_list, value_vars_list, var_name_str, value_name
 	# plot stacked bar graph
 	chart = alt.Chart(long_df).mark_bar().encode(
 		x = x,
-		y = 'sum('+y+')',
-		color = alt.Color(z, 
+		y = 'sum('+value_name_str+')',
+		color = alt.Color(var_name_str, 
 		scale = alt.Scale(scheme=custom_scheme)) #changes color scheme. 
 		# see https://vega.github.io/vega/docs/schemes/ for examples
 	    ).properties(
-		title = 'Proportions of '+z+' by '+x)
-	chart.save(output_directory+'Proportions of '+z+' by '+x+'.html')
+		title = 'Proportions of '+ var_name_str +' by '+x , width = 450)
+	chart.save(output_directory+'Proportions of '+ var_name_str +' by '+x+'.html')
 	return chart
 
 def scatter_plot(df,x,y,z, tt_interactive, output_directory, custom_scheme = 'dark2'):
@@ -154,13 +154,13 @@ def scatter_matrix(df,x,z, output_directory, custom_scheme = 'dark2'):
 	chart.save(output_directory+'Scatterplot Matrix.html')
 	return chart
 
-def violin(df,x,y,z, custom_scheme = 'deep'):
+def violin(df,x,y,z, custom_scheme = 'deep', order = None):
 	'''Requires seaborn. Plots a violin distribution plot of y by x	 where z 
 	is a factor that allows for grouping, if desired. DOES NOT AUTOMATICALLY SAVE OUTPUT. '''
 	sns.set_palette(custom_scheme)
 	ax = sns.violinplot(x=x, y=y, 
 		hue=z, #optional
-		data=df)
+		data=df, order = order)
 	ax.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
 	ax.set(title ='Distribution of '+y+' by '+x)
 	return ax
@@ -175,13 +175,14 @@ def regression_plot(df,x,y,z, output_directory, custom_scheme = 'deep'):
 	g.savefig(output_directory+ 'Regression Plot of '+x+' and '+y+'.png')
 	return g
 
-def boxplot(df,x,y,z, custom_scheme = 'deep'):
+def boxplot(df,x,y,z, custom_scheme = 'deep', order = None):
 	'''Requires seaborn. Plots a boxplot of y by x with marks for outliers,, where z 
 	is a factor that allows for grouping, if desired. DOES NOT AUTOMATICALLY SAVE OUTPUT. '''
 	sns.set_palette(custom_scheme)
 	ax = sns.boxplot(x=x, y=y,
 			 hue=z,
-			 data=df)
+			 data=df, 
+			 order = order)
 	sns.despine(offset=10, trim=True)
 	ax.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
 	ax.set(title ='Distribution of '+y+' by '+x)
