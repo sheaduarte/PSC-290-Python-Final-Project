@@ -115,10 +115,10 @@ def stacked_bar_graph(df,id_vars_list, value_vars_list, var_name_str, value_name
 	chart = alt.Chart(long_df).mark_bar().encode(
 		x = x,
 		y = 'sum('+value_name_str+')',
-		axis = alt.Axis(labelAngle = -90),
+		axis = alt.Axis(labelAngle = -90), # this might not be the right place for this! ***
 		color = alt.Color(var_name_str, 
-		scale = alt.Scale(scheme=custom_scheme)) #changes color scheme. 
-		# see https://vega.github.io/vega/docs/schemes/ for examples
+		scale = alt.Scale(scheme=custom_scheme))
+		# see https://vega.github.io/vega/docs/schemes/ for scheme examples
 	    ).properties(
 		title = 'Proportions of '+ var_name_str +' by '+x , width = 450)
 	if output_directory != None:
