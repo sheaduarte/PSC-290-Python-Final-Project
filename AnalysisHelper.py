@@ -83,7 +83,7 @@ def histogram(df, y, output_directory = None):
         		chart.save(output_directory+'Histogram of '+y+'.html')
         	return chart
 
-def bar_graph(df,x,y,z, output_directory, custom_scheme = 'deep', custom_style = 'darkgrid', order = None):
+def bar_graph(df,x,y,z, output_directory = None, custom_scheme = 'deep', custom_style = 'darkgrid', order = None):
 	'''Requires seaborn. Plots a bar graph of x by y, grouped by z if desired. Automatically saves 
 	a png file to output directory. '''
 	sns.set(style= custom_style, palette = custom_scheme)
@@ -96,10 +96,11 @@ def bar_graph(df,x,y,z, output_directory, custom_scheme = 'deep', custom_style =
 	g.set_xlabels(x)
 	#g.set_xticklabels(rotation=45) #can turn off if you don't need axes rotated
 	g.set(title ='Mean Differences in '+y)
-	g.savefig(output_directory+ 'Mean Differences in '+y+'.png')
+	if output_directory != None:
+		g.savefig(output_directory+ 'Mean Differences in '+y+'.png')
 	return g
 
-def stacked_bar_graph(df,id_vars_list, value_vars_list, var_name_str, value_name_str, x, output_directory, custom_scheme = 'dark2'):
+def stacked_bar_graph(df,id_vars_list, value_vars_list, var_name_str, value_name_str, x, output_directory = None, custom_scheme = 'dark2'):
 	'''Requires pandas, altair and altair saver. First converts a df to long format using melt. Next, plots a 
 	standardized stacked bar graph of x by y, where z is different subgroups within X. Automatically saves a html 
 	file to output directory. '''
@@ -118,10 +119,11 @@ def stacked_bar_graph(df,id_vars_list, value_vars_list, var_name_str, value_name
 		# see https://vega.github.io/vega/docs/schemes/ for examples
 	    ).properties(
 		title = 'Proportions of '+ var_name_str +' by '+x , width = 450)
-	chart.save(output_directory+'Proportions of '+ var_name_str +' by '+x+'.html')
+	if output_directory != None:
+		chart.save(output_directory+'Proportions of '+ var_name_str +' by '+x+'.html')
 	return chart
 
-def scatter_plot(df,x,y,z, tt_interactive, output_directory, custom_scheme = 'dark2'):
+def scatter_plot(df,x,y,z, tt_interactive, output_directory = None, custom_scheme = 'dark2'):
 	'''Requires altair and altair saver. Plots a scatter plot of x and y, where z 
 	is a factor that changes point color (optional). Tooltip functionality enabled, but will 
 	need to specify desired columns ahead of time. Automatically saves a html file to output directory. '''
@@ -133,10 +135,11 @@ def scatter_plot(df,x,y,z, tt_interactive, output_directory, custom_scheme = 'da
 	tooltip= tt_interactive
 	).interactive().properties(
 	title='Scatterplot of '+x+' by '+y)
-	chart.save(output_directory+'Scatterplot of '+x+' by '+y+'.html')
+	if output_directory != None:
+		chart.save(output_directory+'Scatterplot of '+x+' by '+y+'.html')
 	return chart
 
-def scatter_matrix(df,x,z, output_directory, custom_scheme = 'dark2'):
+def scatter_matrix(df,x,z, output_directory = None, custom_scheme = 'dark2'):
 	'''Requires altair and altair saver. Plots a scatter matrix of a list of variables (x), where z 
 	is a factor that changes point color (optional). Automatically saves a html file to output directory. '''
 	x_inverse = x[::-1] 
@@ -152,7 +155,8 @@ def scatter_matrix(df,x,z, output_directory, custom_scheme = 'dark2'):
 		row=x,
 		column= x_inverse
 	).interactive()
-	chart.save(output_directory+'Scatterplot Matrix.html')
+	if output_directory != None:
+		chart.save(output_directory+'Scatterplot Matrix.html')
 	return chart
 
 def violin(df,x,y,z, custom_scheme = 'deep', custom_style = 'darkgrid', order = None):
@@ -166,14 +170,15 @@ def violin(df,x,y,z, custom_scheme = 'deep', custom_style = 'darkgrid', order = 
 	ax.set(title ='Distribution of '+y+' by '+x)
 	return ax
 
-def regression_plot(df,x,y,z, output_directory, custom_scheme = 'deep', custom_style = 'darkgrid'):
+def regression_plot(df,x,y,z, output_directory = None, custom_scheme = 'deep', custom_style = 'darkgrid'):
 	'''Requires seaborn. Plots a regression plot of x by y with regression lines, where z 
 	is a factor that allows for grouping, if desired. Automatically saves output as a png file. '''
 	sns.set(style= custom_style, palette = custom_scheme)
 	g = sns.lmplot(x=x, y=y, hue=z,
 		       data=df)
 	g.set(title ='Regression Plot of '+x+' and '+y)
-	g.savefig(output_directory+ 'Regression Plot of '+x+' and '+y+'.png')
+	if output_directory != None:
+		g.savefig(output_directory+ 'Regression Plot of '+x+' and '+y+'.png')
 	return g
 
 def boxplot(df,x,y,z, custom_scheme = 'deep', custom_style = 'darkgrid', order = None):
