@@ -70,7 +70,7 @@ def remove_outliers(df, var, outlier_constant = 1.5):
 	
 ########## Creating Figures ##########
 
-def histogram(df, y, output_directory):
+def histogram(df, y, output_directory = None):
 	'''Requires altair and altair saver. Plots a histogram of y and automatically saves a html file 
 	to output directory. Won't work if df has more than 5000 rows.'''
 	if df.shape[0] >5000:
@@ -79,8 +79,9 @@ def histogram(df, y, output_directory):
         	chart = alt.Chart(df).mark_bar(
         	).encode(alt.X(y,title= y, bin = True), y = 'count()', 
         	).properties(title = 'Distribution of '+y)
-        	chart.save(output_directory+'Histogram of '+y+'.html')
-        	return chart
+        	if output_directory != None:
+        		chart.save(output_directory+'Histogram of '+y+'.html')
+        		return chart
 
 def bar_graph(df,x,y,z, output_directory, custom_scheme = 'deep', custom_style = 'darkgrid', order = None):
 	'''Requires seaborn. Plots a bar graph of x by y, grouped by z if desired. Automatically saves 
