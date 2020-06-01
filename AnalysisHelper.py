@@ -83,7 +83,7 @@ def histogram(df, y, output_directory = None):
         		chart.save(output_directory+'Histogram of '+y+'.html')
         	return chart
 
-def bar_graph(df,x,y,z, output_directory = None, custom_scheme = 'deep', custom_style = 'darkgrid', order = None):
+def bar_graph(df,x,y,z, output_directory = None, custom_scheme = 'deep', custom_style = 'darkgrid', order = None, label_rotation = None):
 	'''Requires seaborn. Plots a bar graph of x by y, grouped by z if desired. Automatically saves 
 	a png file to output directory. '''
 	sns.set(style= custom_style, palette = custom_scheme)
@@ -94,7 +94,8 @@ def bar_graph(df,x,y,z, output_directory = None, custom_scheme = 'deep', custom_
 	g.despine(left=True)
 	g.set_ylabels(y)
 	g.set_xlabels(x)
-	#g.set_xticklabels(rotation=45) #can turn off if you don't need axes rotated
+	if label_rotation != None:
+		g.set_xticklabels(rotation= label_rotation) 
 	g.set(title ='Mean Differences in '+y)
 	if output_directory != None:
 		g.savefig(output_directory+ 'Mean Differences in '+y+'.png')
@@ -114,6 +115,7 @@ def stacked_bar_graph(df,id_vars_list, value_vars_list, var_name_str, value_name
 	chart = alt.Chart(long_df).mark_bar().encode(
 		x = x,
 		y = 'sum('+value_name_str+')',
+		axis = alt.Axis(labelAngle = -90),
 		color = alt.Color(var_name_str, 
 		scale = alt.Scale(scheme=custom_scheme)) #changes color scheme. 
 		# see https://vega.github.io/vega/docs/schemes/ for examples
