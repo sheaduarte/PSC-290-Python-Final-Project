@@ -70,21 +70,22 @@ def remove_outliers(df, var, outlier_constant = 1.5):
 	
 ########## Creating Figures ##########
 
-def histogram(df, y, output_directory):
-	'''Requires altair and altair saver. Plots a histogram of y and automatically saves a html file 
-	to output directory. Won't work if df has more than 5000 rows.'''
+def histogram(df, y, output_directory = None):
+	'''Requires altair and altair saver. Plots a histogram of y and can save a html file 
+	to output directory, if provided. Won't work if df has more than 5000 rows.'''
 	if df.shape[0] >5000:
         	return 'The dataframe is too large. Subset the data or use a different dataframe.'
 	else:
         	chart = alt.Chart(df).mark_bar(
         	).encode(alt.X(y,title= y, bin = True), y = 'count()', 
         	).properties(title = 'Distribution of '+y)
-        	chart.save(output_directory+'Histogram of '+y+'.html')
+        	if output_directory != None:
+        		chart.save(output_directory+'Histogram of '+y+'.html')
         	return chart
 
-def bar_graph(df,x,y,z, output_directory, custom_scheme = 'deep', custom_style = 'darkgrid', order = None):
-	'''Requires seaborn. Plots a bar graph of x by y, grouped by z if desired. Automatically saves 
-	a png file to output directory. '''
+def bar_graph(df,x,y,z, output_directory = None, custom_scheme = 'deep', custom_style = 'darkgrid', order = None, label_rotation = None):
+	'''Requires seaborn. Plots a bar graph of x by y, grouped by z (a factor) if desired. Can save 
+	a png file to output directory, edit color scheme and styles, and rotate x axis labels, if desired. '''
 	sns.set(style= custom_style, palette = custom_scheme)
 	g = sns.catplot(x=x, y=y, 
                 hue=z, # use this to group, if needed
@@ -93,17 +94,19 @@ def bar_graph(df,x,y,z, output_directory, custom_scheme = 'deep', custom_style =
 	g.despine(left=True)
 	g.set_ylabels(y)
 	g.set_xlabels(x)
-	#g.set_xticklabels(rotation=45) #can turn off if you don't need axes rotated
+	if label_rotation != None:
+		g.set_xticklabels(rotation= label_rotation) 
 	g.set(title ='Mean Differences in '+y)
-	g.savefig(output_directory+ 'Mean Differences in '+y+'.png')
+	if output_directory != None:
+		g.savefig(output_directory+ 'Mean Differences in '+y+'.png')
 	return g
 
-def stacked_bar_graph(df,id_vars_list, value_vars_list, var_name_str, value_name_str, x, output_directory, custom_scheme = 'dark2'):
-	'''Requires pandas, altair and altair saver. First converts a df to long format using melt. Next, plots a 
-	standardized stacked bar graph of x by y, where z is different subgroups within X. Automatically saves a html 
-	file to output directory. '''
+def stacked_bar_graph(df,id_vars_list, value_vars_list, var_name_str, value_name_str, x, output_directory = None, custom_scheme = 'dark2'):
+	'''Requires pandas, altair and altair saver. First converts a df to long format using melt. ID_vars_list is the list of column names to keep the same (group or condition, for example). Value_vars_list is the column name that contains the value to sum (such as output values, percentages or proportions). Var_name_str will correspond to the different colors within a stacked bar, so this would be a categorical factor that goes beyond group/condition (such as location). Value_name_str will correspond to the string label for the y axis (such as 'proportion of fixations'). X is the column name to group by for the plot on the x axis. Next, plots a 
+	standardized stacked bar graph of x by y (value_name_str), where z (var_name_str) is different subgroups within X. Option to  save a html 
+	file to output directory and make aesthetic changes if desired. '''
 	# convert df to long format
-	long_df = pd.melt(df, id_vars = id_vars_list, 
+	long_df = pd.melt(df, id_vars = id_vars_list,
 			    value_vars = value_vars_list, 
 			    var_name = var_name_str, 
 			    value_name = value_name_str)
@@ -112,18 +115,20 @@ def stacked_bar_graph(df,id_vars_list, value_vars_list, var_name_str, value_name
 	chart = alt.Chart(long_df).mark_bar().encode(
 		x = x,
 		y = 'sum('+value_name_str+')',
+		axis = alt.Axis(labelAngle = -90), # this might not be the right place for this! *** EP
 		color = alt.Color(var_name_str, 
-		scale = alt.Scale(scheme=custom_scheme)) #changes color scheme. 
-		# see https://vega.github.io/vega/docs/schemes/ for examples
+		scale = alt.Scale(scheme=custom_scheme))
+		# see https://vega.github.io/vega/docs/schemes/ for scheme examples
 	    ).properties(
 		title = 'Proportions of '+ var_name_str +' by '+x , width = 450)
-	chart.save(output_directory+'Proportions of '+ var_name_str +' by '+x+'.html')
+	if output_directory != None:
+		chart.save(output_directory+'Proportions of '+ var_name_str +' by '+x+'.html')
 	return chart
 
-def scatter_plot(df,x,y,z, tt_interactive, output_directory, custom_scheme = 'dark2'):
+def scatter_plot(df,x,y,z, tt_interactive, output_directory = None, custom_scheme = 'dark2'):
 	'''Requires altair and altair saver. Plots a scatter plot of x and y, where z 
 	is a factor that changes point color (optional). Tooltip functionality enabled, but will 
-	need to specify desired columns ahead of time. Automatically saves a html file to output directory. '''
+	need to specify desired columns in a list ahead of time (tt_interactive_. Option to save a html file to output directory and make aesthetic changes. '''
 	chart= alt.Chart(df).mark_circle(size=60).encode(
 	x=x,
 	y=y,
@@ -132,12 +137,13 @@ def scatter_plot(df,x,y,z, tt_interactive, output_directory, custom_scheme = 'da
 	tooltip= tt_interactive
 	).interactive().properties(
 	title='Scatterplot of '+x+' by '+y)
-	chart.save(output_directory+'Scatterplot of '+x+' by '+y+'.html')
+	if output_directory != None:
+		chart.save(output_directory+'Scatterplot of '+x+' by '+y+'.html')
 	return chart
 
-def scatter_matrix(df,x,z, output_directory, custom_scheme = 'dark2'):
+def scatter_matrix(df,x,z, output_directory = None, custom_scheme = 'dark2'):
 	'''Requires altair and altair saver. Plots a scatter matrix of a list of variables (x), where z 
-	is a factor that changes point color (optional). Automatically saves a html file to output directory. '''
+	is a factor that changes point color (optional). Option to save a html file to output directory. '''
 	x_inverse = x[::-1] 
 	chart= alt.Chart(df).mark_circle().encode(
 		alt.X(alt.repeat("column"), type='quantitative'),
@@ -151,7 +157,8 @@ def scatter_matrix(df,x,z, output_directory, custom_scheme = 'dark2'):
 		row=x,
 		column= x_inverse
 	).interactive()
-	chart.save(output_directory+'Scatterplot Matrix.html')
+	if output_directory != None:
+		chart.save(output_directory+'Scatterplot Matrix.html')
 	return chart
 
 def violin(df,x,y,z, custom_scheme = 'deep', custom_style = 'darkgrid', order = None):
@@ -165,14 +172,15 @@ def violin(df,x,y,z, custom_scheme = 'deep', custom_style = 'darkgrid', order = 
 	ax.set(title ='Distribution of '+y+' by '+x)
 	return ax
 
-def regression_plot(df,x,y,z, output_directory, custom_scheme = 'deep', custom_style = 'darkgrid'):
+def regression_plot(df,x,y,z, output_directory = None, custom_scheme = 'deep', custom_style = 'darkgrid'):
 	'''Requires seaborn. Plots a regression plot of x by y with regression lines, where z 
-	is a factor that allows for grouping, if desired. Automatically saves output as a png file. '''
+	is a factor that allows for grouping, if desired. Option to save output as a png file. '''
 	sns.set(style= custom_style, palette = custom_scheme)
 	g = sns.lmplot(x=x, y=y, hue=z,
 		       data=df)
 	g.set(title ='Regression Plot of '+x+' and '+y)
-	g.savefig(output_directory+ 'Regression Plot of '+x+' and '+y+'.png')
+	if output_directory != None:
+		g.savefig(output_directory+ 'Regression Plot of '+x+' and '+y+'.png')
 	return g
 
 def boxplot(df,x,y,z, custom_scheme = 'deep', custom_style = 'darkgrid', order = None):
