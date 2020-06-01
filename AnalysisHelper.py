@@ -81,7 +81,7 @@ def histogram(df, y, output_directory = None):
         	).properties(title = 'Distribution of '+y)
         	if output_directory != None:
         		chart.save(output_directory+'Histogram of '+y+'.html')
-        		return chart
+        	return chart
 
 def bar_graph(df,x,y,z, output_directory, custom_scheme = 'deep', custom_style = 'darkgrid', order = None):
 	'''Requires seaborn. Plots a bar graph of x by y, grouped by z if desired. Automatically saves 
