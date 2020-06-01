@@ -82,10 +82,10 @@ def histogram(df, y, output_directory):
         	chart.save(output_directory+'Histogram of '+y+'.html')
         	return chart
 
-def bar_graph(df,x,y,z, output_directory, custom_scheme = 'deep', order = None):
+def bar_graph(df,x,y,z, output_directory, custom_scheme = 'deep', custom_style = 'darkgrid', order = None):
 	'''Requires seaborn. Plots a bar graph of x by y, grouped by z if desired. Automatically saves 
 	a png file to output directory. '''
-	sns.set_palette(custom_scheme)
+	sns.set(style= custom_style, palette = custom_scheme)
 	g = sns.catplot(x=x, y=y, 
                 hue=z, # use this to group, if needed
                 data=df,
@@ -154,10 +154,10 @@ def scatter_matrix(df,x,z, output_directory, custom_scheme = 'dark2'):
 	chart.save(output_directory+'Scatterplot Matrix.html')
 	return chart
 
-def violin(df,x,y,z, custom_scheme = 'deep', order = None):
+def violin(df,x,y,z, custom_scheme = 'deep', custom_style = 'darkgrid', order = None):
 	'''Requires seaborn. Plots a violin distribution plot of y by x	 where z 
 	is a factor that allows for grouping, if desired. DOES NOT AUTOMATICALLY SAVE OUTPUT. '''
-	sns.set_palette(custom_scheme)
+	sns.set(style= custom_style, palette = custom_scheme)
 	ax = sns.violinplot(x=x, y=y, 
 		hue=z, #optional
 		data=df, order = order)
@@ -165,20 +165,20 @@ def violin(df,x,y,z, custom_scheme = 'deep', order = None):
 	ax.set(title ='Distribution of '+y+' by '+x)
 	return ax
 
-def regression_plot(df,x,y,z, output_directory, custom_scheme = 'deep'):
+def regression_plot(df,x,y,z, output_directory, custom_scheme = 'deep', custom_style = 'darkgrid'):
 	'''Requires seaborn. Plots a regression plot of x by y with regression lines, where z 
 	is a factor that allows for grouping, if desired. Automatically saves output as a png file. '''
-	sns.set_palette(custom_scheme)
+	sns.set(style= custom_style, palette = custom_scheme)
 	g = sns.lmplot(x=x, y=y, hue=z,
 		       data=df)
 	g.set(title ='Regression Plot of '+x+' and '+y)
 	g.savefig(output_directory+ 'Regression Plot of '+x+' and '+y+'.png')
 	return g
 
-def boxplot(df,x,y,z, custom_scheme = 'deep', order = None):
+def boxplot(df,x,y,z, custom_scheme = 'deep', custom_style = 'darkgrid', order = None):
 	'''Requires seaborn. Plots a boxplot of y by x with marks for outliers,, where z 
 	is a factor that allows for grouping, if desired. DOES NOT AUTOMATICALLY SAVE OUTPUT. '''
-	sns.set_palette(custom_scheme)
+	sns.set(style= custom_style, palette = custom_scheme)
 	ax = sns.boxplot(x=x, y=y,
 			 hue=z,
 			 data=df, 
