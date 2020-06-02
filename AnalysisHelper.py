@@ -100,13 +100,16 @@ def bar_graph(df,x,y,z, output_directory = None, custom_scheme = 'deep', custom_
 	if output_directory != None:
 		g.savefig(output_directory+ 'Mean Differences in '+y+'.png')
 	return g
-
-def stacked_bar_graph(df,id_vars_list, value_vars_list, var_name_str, value_name_str, x, output_directory = None, custom_scheme = 'dark2'):
-	'''Requires pandas, altair and altair saver. First converts a df to long format using melt. ID_vars_list is the list of column names to keep the same (group or condition, for example). Value_vars_list is the column name that contains the value to sum (such as output values, percentages or proportions). Var_name_str will correspond to the different colors within a stacked bar, so this would be a categorical factor that goes beyond group/condition (such as location). Value_name_str will correspond to the string label for the y axis (such as 'proportion of fixations'). X is the column name to group by for the plot on the x axis. Next, plots a 
-	standardized stacked bar graph of x by y (value_name_str), where z (var_name_str) is different subgroups within X. Option to  save a html 
-	file to output directory and make aesthetic changes if desired. '''
+	
+def stacked_bar_graph(df,id_vars_list, value_vars_list, var_name_str, value_name_str, x, y, z, output_directory = None, custom_scheme = 'dark2'):
+	'''Requires pandas, altair and altair saver. First converts a df to long format using melt. ID_vars_list is the list of column names to keep the same 
+	(group or condition, for example). Value_vars_list is the column name that contains the value to sum (such as output values, percentages or proportions). 
+	Var_name_str will correspond to the different colors within a stacked bar, so this would be a categorical factor that goes beyond group/condition (such as 
+	location). Value_name_str will correspond to the string label for the y axis (such as 'proportion of fixations'). X is the column name to group by for the 
+	plot on the x axis. Next, plots a standardized stacked bar graph of x by y (value_name_str), where z (var_name_str) is different subgroups within X. 
+	Option to  save a html file to output directory and make aesthetic changes if desired. '''
 	# convert df to long format
-	long_df = pd.melt(df, id_vars = id_vars_list,
+	long_df = pd.melt(df, id_vars = id_vars_list, 
 			    value_vars = value_vars_list, 
 			    var_name = var_name_str, 
 			    value_name = value_name_str)
@@ -114,15 +117,13 @@ def stacked_bar_graph(df,id_vars_list, value_vars_list, var_name_str, value_name
 	# plot stacked bar graph
 	chart = alt.Chart(long_df).mark_bar().encode(
 		x = x,
-		y = 'sum('+value_name_str+')',
-		axis = alt.Axis(labelAngle = -90), # this might not be the right place for this! *** EP
-		color = alt.Color(var_name_str, 
-		scale = alt.Scale(scheme=custom_scheme))
-		# see https://vega.github.io/vega/docs/schemes/ for scheme examples
+		y = 'sum('+y+')',
+		color = alt.Color(z, 
+		scale = alt.Scale(scheme=custom_scheme)) #changes color scheme. 
+		# see https://vega.github.io/vega/docs/schemes/ for examples
 	    ).properties(
-		title = 'Proportions of '+ var_name_str +' by '+x , width = 450)
-	if output_directory != None:
-		chart.save(output_directory+'Proportions of '+ var_name_str +' by '+x+'.html')
+		title = 'Proportions of '+z+' by '+x, width = 450)
+	chart.save(output_directory+'Proportions of '+z+' by '+x+'.html')
 	return chart
 
 def scatter_plot(df,x,y,z, tt_interactive, output_directory = None, custom_scheme = 'dark2'):
