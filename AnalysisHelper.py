@@ -53,7 +53,7 @@ def accuracy_calc(df, correct_answers = 'corrCheck'):
 	'''Subject Accuracy: Uses a column with boolean values 
 	(0: incorrect, 1: correct) and calculates percent accuracy'''
 	acc = (df[correct_answers].value_counts()[1])/((df[correct_answers].value_counts()[0])+(df[correct_answers].value_counts()[1]))
-	print(acc)
+	return pd.Series(acc)
 
 def remove_outliers(df, var, outlier_constant = 1.5):
 	'''Outlier Remover: Removes outliers from a set of data 
@@ -201,9 +201,6 @@ def boxplot(df,x,y,z, custom_scheme = 'deep', custom_style = 'darkgrid', order =
 ##### Data Subsetting for Eyetracking Data Figures #####
 
 
-# I created this class for eyetracking data, I don't think this is the proper/best use of
-# 	classes but I'm working on making it more functional for future projects.
-
 class EyeTrackingHelper:
 	def __init__(self, RawEyeDF):
 		'''Takes a raw eyetracking dataframe that has had columns filtered and renamed'''
@@ -250,7 +247,7 @@ class EasyDataframes:
 		self.trialVar = trialVar
 		self.participantVar = participantVar
 	
-	def FirstFixProportions(self, conditionVar = 'condition', first_fixationVar = 'first_fixation', IA_1='targetIA', IA_2='distIA', trialVar = 'trial'):
+	def FirstFixProportions_df(self, conditionVar = 'condition', first_fixationVar = 'first_fixation', IA_1='targetIA', IA_2='distIA', trialVar = 'trial'):
 		'''from df, creates a new df of count values & finds proportion of first fixations to two interest areas,
 		not suitable for more than two interest areas, default values are set to my typical variable names'''
 		result = pd.DataFrame()
@@ -269,6 +266,14 @@ class EasyDataframes:
 			result = pd.DataFrame(result)
 		return result
 	
+	def Accuracy_df(self, correctVar, groupingVar):
+		'''creates a dataframe for accuracy for any grouping variable you'd like (e.g., accuracy by condition, 
+		accuracy by subject) requires a grouping variable and a boolean correct/incorrect variable'''
+		acc_sub = self.df[[correctVar, groupingVar]]
+		acc_df = acc_sub.groupby(groupingVar).apply(accuracy_calc)
+		acc_df = acc_df.reset_index()
+		acc_df = acc_df.rename(columns={0:'accuracy'})
+		return acc_df
 
 
 
