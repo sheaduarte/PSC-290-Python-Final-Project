@@ -197,49 +197,7 @@ def boxplot(df,x,y,z, custom_scheme = 'deep', custom_style = 'darkgrid', order =
 	ax.set(title ='Distribution of '+y+' by '+x)
 	return ax
 
-
-##### Data Subsetting for Eyetracking Data Figures #####
-
-
-class EyeTrackingHelper:
-	def __init__(self, RawEyeDF):
-		'''Takes a raw eyetracking dataframe that has had columns filtered and renamed'''
-		self.RawEyeDF = RawEyeDF
-		
-	def CleanEyeTracking_MasterDF(self, currentFixationIdx, nearestIAVar, currentFixDurationVar, fixationTotalVar, trialVar = 'trial', participantVar = 'participant'):
-		EyeDF_cols = ['trial','participant', 'total_fixations', 'latency', 'fixation0']
-		EyeTracking_MasterDF = pd.DataFrame(columns = EyeDF_cols)
-		Fix0 = self.RawEyeDF[self.RawEyeDF[currentFixationIdx] == 1]
-		EyeTracking_MasterDF['trial'] = Fix0[trialVar]
-		EyeTracking_MasterDF['participant'] = Fix0[participantVar]
-		EyeTracking_MasterDF['total_fixations'] = Fix0[fixationTotalVar]
-		EyeTracking_MasterDF['latency'] = Fix0[currentFixDurationVar]
-		EyeTracking_MasterDF['fixation0'] = Fix0[nearestIAVar]
-		keep_cols = [trialVar, participantVar, nearestIAVar, currentFixDurationVar]
-		dfs = [EyeTracking_MasterDF]
-		for x in list(range(2,7)):
-			FixDFs = self.RawEyeDF[self.RawEyeDF[currentFixationIdx] == x]
-			FixDFs = FixDFs[keep_cols]
-			FixDFs = FixDFs.rename(columns = {nearestIAVar:'fixation' + str(x-1), currentFixDurationVar:'fix_dur_' + str(x-1)})
-			dfs.append(FixDFs)
-		EyeTracking_MasterDF = reduce(lambda left,right: pd.merge(left,right,on=['trial', 'participant'], how='outer'), dfs)
-		EyeTracking_MasterDF = EyeTracking_MasterDF.iloc[:, [0,1,2,3,4,5,6,8,9,11,12,14]]
-		EyeTracking_MasterDF = pd.DataFrame(EyeTracking_MasterDF)
-		return EyeTracking_MasterDF
-		
-	def Add_First_Fixation(self, df, fixation1Var, fixation2Var, fixation3Var, fixDuration1, fixDuration2, fixDuration3, fixationIA = 'fixationIA'):
-		'''If dat has an interest area on fixation, this function can be used to disregard first fixations on fixation IAs 
-		so that first fixations refer to the first non-fixation interest area that participants look at'''
-		df['first_fixation'] = df[fixation1Var]
-		df['first_fixation'] = df['first_fixation'].replace(fixationIA, df[fixation2Var])
-		df['first_fixation'] = df['first_fixation'].replace(fixationIA, df[fixation3Var])
-		idx = df.index[df[fixation1Var]==fixationIA]
-		df['first_fix_dwell'] = df[fixDuration1]
-		df.loc[idx, 'first_fix_dwell'] = df[fixDuration2]
-		idx2 = df.index[(df[fixation1Var]==fixationIA) & (df[fixation2Var]==fixationIA)]
-		df.loc[idx2, 'first_fix_dwell'] = df[fixDuration3]
-		df = pd.DataFrame(df)
-		return df
+##### Useful Dataframes for Visualization & Plotting #####
 
 class EasyDataframes:
 	def __init__(self, df, trialVar = None, participantVar = None):
@@ -274,6 +232,54 @@ class EasyDataframes:
 		acc_df = acc_df.reset_index()
 		acc_df = acc_df.rename(columns={0:'accuracy'})
 		return acc_df
+
+
+
+##### Eyetracking Data Cleaning #####
+ # still a work in progress, will continue to add features useful for manipulating eyetracking data
+
+class EyeTrackingHelper:
+	def __init__(self, RawEyeDF):
+		'''Takes a raw eyetracking dataframe that has had columns filtered and renamed'''
+		self.RawEyeDF = RawEyeDF
+		
+	def CleanEyeTracking_MasterDF(self, currentFixationIdx, nearestIAVar, currentFixDurationVar, fixationTotalVar, trialVar = 'trial', participantVar = 'participant'):
+		''' takes output from EyeLink DataViewer and creates a summarized df with a single summary row for each trial. 
+		Makes for easy compatibility with psychopy/behavioral output'''
+		EyeDF_cols = ['trial','participant', 'total_fixations', 'latency', 'fixation0']
+		EyeTracking_MasterDF = pd.DataFrame(columns = EyeDF_cols)
+		Fix0 = self.RawEyeDF[self.RawEyeDF[currentFixationIdx] == 1]
+		EyeTracking_MasterDF['trial'] = Fix0[trialVar]
+		EyeTracking_MasterDF['participant'] = Fix0[participantVar]
+		EyeTracking_MasterDF['total_fixations'] = Fix0[fixationTotalVar]
+		EyeTracking_MasterDF['latency'] = Fix0[currentFixDurationVar]
+		EyeTracking_MasterDF['fixation0'] = Fix0[nearestIAVar]
+		keep_cols = [trialVar, participantVar, nearestIAVar, currentFixDurationVar]
+		dfs = [EyeTracking_MasterDF]
+		for x in list(range(2,7)):
+			FixDFs = self.RawEyeDF[self.RawEyeDF[currentFixationIdx] == x]
+			FixDFs = FixDFs[keep_cols]
+			FixDFs = FixDFs.rename(columns = {nearestIAVar:'fixation' + str(x-1), currentFixDurationVar:'fix_dur_' + str(x-1)})
+			dfs.append(FixDFs)
+		EyeTracking_MasterDF = reduce(lambda left,right: pd.merge(left,right,on=['trial', 'participant'], how='outer'), dfs)
+		EyeTracking_MasterDF = EyeTracking_MasterDF.iloc[:, [0,1,2,3,4,5,6,8,9,11,12,14]]
+		EyeTracking_MasterDF = pd.DataFrame(EyeTracking_MasterDF)
+		return EyeTracking_MasterDF
+		
+	def Add_First_Fixation(self, df, fixation1Var, fixation2Var, fixation3Var, fixDuration1, fixDuration2, fixDuration3, fixationIA = 'fixationIA'):
+		'''If data has an interest area on fixation, this function can be used to disregard first fixations on fixation IAs 
+		so that first fixations refer to the first non-fixation interest area that participants look at'''
+		df['first_fixation'] = df[fixation1Var]
+		df['first_fixation'] = df['first_fixation'].replace(fixationIA, df[fixation2Var])
+		df['first_fixation'] = df['first_fixation'].replace(fixationIA, df[fixation3Var])
+		idx = df.index[df[fixation1Var]==fixationIA]
+		df['first_fix_dwell'] = df[fixDuration1]
+		df.loc[idx, 'first_fix_dwell'] = df[fixDuration2]
+		idx2 = df.index[(df[fixation1Var]==fixationIA) & (df[fixation2Var]==fixationIA)]
+		df.loc[idx2, 'first_fix_dwell'] = df[fixDuration3]
+		df = pd.DataFrame(df)
+		return df
+
 
 
 
