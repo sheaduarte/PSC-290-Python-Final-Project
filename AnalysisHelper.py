@@ -244,21 +244,6 @@ class EyeTrackingHelper:
 		df = pd.DataFrame(df)
 		return df
 
-# def FirstFixProportions(df, condition_list, IA_1='targetIA', IA_2='distIA', trialVar = 'trial'):
-# 	'''Uses dataframe of count values & finds proportion of first fixations to two interest areas, 
-# 	not suitable for more than two interest areas'''
-# 	result = pd.DataFrame()
-# 	for condition in condition_list:
-# 		target = (df[(trialVar, condition)][IA_1])/((df[(trialVar,condition)][IA_2])+
-# 														  (df[(trialVar, condition)][IA_1]))
-# 		distractor = (df[(trialVar, condition)][IA_2])/((df[(trialVar, condition)][IA_2])+
-# 															(df[(trialVar, condition)][IA_1]))
-# 		Proportion_Dict = {'condition':condition,'target': target,'distractor':distractor}
-# 		result = result.append(Proportion_Dict, ignore_index =True)
-# 		result = pd.DataFrame(result)
-# 	return result
-
-
 class EasyDataframes:
 	def __init__(self, df, trialVar = None, participantVar = None):
 		self.df = df
@@ -266,20 +251,20 @@ class EasyDataframes:
 		self.participantVar = participantVar
 	
 	def FirstFixProportions(self, conditionVar = 'condition', first_fixationVar = 'first_fixation', IA_1='targetIA', IA_2='distIA', trialVar = 'trial'):
-		'''Uses dataframe of count values & finds proportion of first fixations to two interest areas,
-		not suitable for more than two interest areas'''
+		'''from df, creates a new df of count values & finds proportion of first fixations to two interest areas,
+		not suitable for more than two interest areas, default values are set to my typical variable names'''
 		result = pd.DataFrame()
 		count_df_sub = self.df[[trialVar,conditionVar,first_fixationVar]]
 		count_df = count_df_sub.groupby([first_fixationVar,conditionVar]).count()
 		count_df = count_df.unstack()
-		conditions = self.df.conditionVar.unique()
+		conditions = self.df[conditionVar].dropna().unique()
 		condition_list = conditions.tolist()                                                
 		for condition in condition_list:
 			target = (count_df[(trialVar, condition)][IA_1])/((count_df[(trialVar,condition)][IA_2])+
 															  (count_df[(trialVar, condition)][IA_1]))
 			distractor = (count_df[(trialVar, condition)][IA_2])/((count_df[(trialVar, condition)][IA_2])+
 																(count_df[(trialVar, condition)][IA_1]))
-			proportion_dict = {'condition':condition_list,'target': target,'distractor':distractor}
+			proportion_dict = {'condition':condition,'target': target,'distractor':distractor}
 			result = result.append(proportion_dict, ignore_index =True)
 			result = pd.DataFrame(result)
 		return result
