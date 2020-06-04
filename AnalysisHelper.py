@@ -49,10 +49,10 @@ def rename_columns(txt_file, df):
 		df.columns = names
 	return df
 
-def SjAcc(df):
+def accuracy_calc(df, correct_answers = 'corrCheck'):
 	'''Subject Accuracy: Uses a column with boolean values 
 	(0: incorrect, 1: correct) and calculates percent accuracy'''
-	acc = (df['corrCheck'].value_counts()[1])/((df['corrCheck'].value_counts()[0])+(df['corrCheck'].value_counts()[1]))
+	acc = (df[correct_answers].value_counts()[1])/((df[correct_answers].value_counts()[0])+(df[correct_answers].value_counts()[1]))
 	print(acc)
 
 def remove_outliers(df, var, outlier_constant = 1.5):
@@ -201,6 +201,9 @@ def boxplot(df,x,y,z, custom_scheme = 'deep', custom_style = 'darkgrid', order =
 ##### Data Subsetting for Eyetracking Data Figures #####
 
 
+# I created this class for eyetracking data, I don't think this is the proper/best use of
+# 	classes but I'm working on making it more functional for future projects.
+
 class EyeTrackingHelper:
 	def __init__(self, RawEyeDF):
 		'''Takes a raw eyetracking dataframe that has had columns filtered and renamed'''
@@ -241,21 +244,46 @@ class EyeTrackingHelper:
 		df = pd.DataFrame(df)
 		return df
 
-def FirstFixProportions(df, condition_list, IA_1='targetIA', IA_2='distIA', trialVar = 'trial'):
-	'''Uses dataframe of count values & finds proportion of first fixations to two interest areas, 
-	not suitable for more than two interest areas'''
-	result = pd.DataFrame()
-	for condition in condition_list:
-		target = (df[(trialVar, condition)][IA_1])/((df[(trialVar,condition)][IA_2])+
-														  (df[(trialVar, condition)][IA_1]))
-		distractor = (df[(trialVar, condition)][IA_2])/((df[(trialVar, condition)][IA_2])+
-															(df[(trialVar, condition)][IA_1]))
-		Proportion_Dict = {'condition':condition,'target': target,'distractor':distractor}
-		result = result.append(Proportion_Dict, ignore_index =True)
-		result = pd.DataFrame(result)
-	return result
+# def FirstFixProportions(df, condition_list, IA_1='targetIA', IA_2='distIA', trialVar = 'trial'):
+# 	'''Uses dataframe of count values & finds proportion of first fixations to two interest areas, 
+# 	not suitable for more than two interest areas'''
+# 	result = pd.DataFrame()
+# 	for condition in condition_list:
+# 		target = (df[(trialVar, condition)][IA_1])/((df[(trialVar,condition)][IA_2])+
+# 														  (df[(trialVar, condition)][IA_1]))
+# 		distractor = (df[(trialVar, condition)][IA_2])/((df[(trialVar, condition)][IA_2])+
+# 															(df[(trialVar, condition)][IA_1]))
+# 		Proportion_Dict = {'condition':condition,'target': target,'distractor':distractor}
+# 		result = result.append(Proportion_Dict, ignore_index =True)
+# 		result = pd.DataFrame(result)
+# 	return result
 
 
+class EasyDataframes:
+	def __init__(self, df, trialVar = None, participantVar = None):
+		self.df = df
+		self.trialVar = trialVar
+		self.participantVar = participantVar
+	
+	def FirstFixProportions(self, conditionVar = 'condition', first_fixationVar = 'first_fixation', IA_1='targetIA', IA_2='distIA', trialVar = 'trial'):
+		'''Uses dataframe of count values & finds proportion of first fixations to two interest areas,
+		not suitable for more than two interest areas'''
+		result = pd.DataFrame()
+		count_df_sub = self.df[[trialVar,conditionVar,first_fixationVar]]
+		count_df = count_df_sub.groupby([first_fixationVar,conditionVar]).count()
+		count_df = count_df.unstack()
+		conditions = self.df.conditionVar.unique()
+		condition_list = conditions.tolist()                                                
+		for condition in condition_list:
+			target = (count_df[(trialVar, condition)][IA_1])/((count_df[(trialVar,condition)][IA_2])+
+															  (count_df[(trialVar, condition)][IA_1]))
+			distractor = (count_df[(trialVar, condition)][IA_2])/((count_df[(trialVar, condition)][IA_2])+
+																(count_df[(trialVar, condition)][IA_1]))
+			proportion_dict = {'condition':condition_list,'target': target,'distractor':distractor}
+			result = result.append(proportion_dict, ignore_index =True)
+			result = pd.DataFrame(result)
+		return result
+	
 
 
 
