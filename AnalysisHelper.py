@@ -53,7 +53,7 @@ def accuracy_calc(df, correct_answers = 'corrCheck'):
 	'''Subject Accuracy: Uses a column with boolean values 
 	(0: incorrect, 1: correct) and calculates percent accuracy'''
 	acc = (df[correct_answers].value_counts()[1])/((df[correct_answers].value_counts()[0])+(df[correct_answers].value_counts()[1]))
-	print(acc)
+	return pd.Series(acc)
 
 def remove_outliers(df, var, outlier_constant = 1.5):
 	'''Outlier Remover: Removes outliers from a set of data 
@@ -197,12 +197,46 @@ def boxplot(df,x,y,z, custom_scheme = 'deep', custom_style = 'darkgrid', order =
 	ax.set(title ='Distribution of '+y+' by '+x)
 	return ax
 
+##### Useful Dataframes for Visualization & Plotting #####
 
-##### Data Subsetting for Eyetracking Data Figures #####
+class EasyDataframes:
+	def __init__(self, df, trialVar = None, participantVar = None):
+		self.df = df
+		self.trialVar = trialVar
+		self.participantVar = participantVar
+	
+	def FirstFixProportions_df(self, conditionVar = 'condition', first_fixationVar = 'first_fixation', IA_1='targetIA', IA_2='distIA', trialVar = 'trial'):
+		'''from df, creates a new df of count values & finds proportion of first fixations to two interest areas,
+		not suitable for more than two interest areas, default values are set to my typical variable names'''
+		result = pd.DataFrame()
+		count_df_sub = self.df[[trialVar,conditionVar,first_fixationVar]]
+		count_df = count_df_sub.groupby([first_fixationVar,conditionVar]).count()
+		count_df = count_df.unstack()
+		conditions = self.df[conditionVar].dropna().unique()
+		condition_list = conditions.tolist()                                                
+		for condition in condition_list:
+			target = (count_df[(trialVar, condition)][IA_1])/((count_df[(trialVar,condition)][IA_2])+
+															  (count_df[(trialVar, condition)][IA_1]))
+			distractor = (count_df[(trialVar, condition)][IA_2])/((count_df[(trialVar, condition)][IA_2])+
+																(count_df[(trialVar, condition)][IA_1]))
+			proportion_dict = {'condition':condition,'target': target,'distractor':distractor}
+			result = result.append(proportion_dict, ignore_index =True)
+			result = pd.DataFrame(result)
+		return result
+	
+	def Accuracy_df(self, correctVar, groupingVar):
+		'''creates a dataframe for accuracy for any grouping variable you'd like (e.g., accuracy by condition, 
+		accuracy by subject) requires a grouping variable and a boolean correct/incorrect variable'''
+		acc_sub = self.df[[correctVar, groupingVar]]
+		acc_df = acc_sub.groupby(groupingVar).apply(accuracy_calc)
+		acc_df = acc_df.reset_index()
+		acc_df = acc_df.rename(columns={0:'accuracy'})
+		return acc_df
 
 
-# I created this class for eyetracking data, I don't think this is the proper/best use of
-# 	classes but I'm working on making it more functional for future projects.
+
+##### Eyetracking Data Cleaning #####
+ # still a work in progress, will continue to add features useful for manipulating eyetracking data
 
 class EyeTrackingHelper:
 	def __init__(self, RawEyeDF):
@@ -210,6 +244,8 @@ class EyeTrackingHelper:
 		self.RawEyeDF = RawEyeDF
 		
 	def CleanEyeTracking_MasterDF(self, currentFixationIdx, nearestIAVar, currentFixDurationVar, fixationTotalVar, trialVar = 'trial', participantVar = 'participant'):
+		''' takes output from EyeLink DataViewer and creates a summarized df with a single summary row for each trial. 
+		Makes for easy compatibility with psychopy/behavioral output'''
 		EyeDF_cols = ['trial','participant', 'total_fixations', 'latency', 'fixation0']
 		EyeTracking_MasterDF = pd.DataFrame(columns = EyeDF_cols)
 		Fix0 = self.RawEyeDF[self.RawEyeDF[currentFixationIdx] == 1]
@@ -231,7 +267,7 @@ class EyeTrackingHelper:
 		return EyeTracking_MasterDF
 		
 	def Add_First_Fixation(self, df, fixation1Var, fixation2Var, fixation3Var, fixDuration1, fixDuration2, fixDuration3, fixationIA = 'fixationIA'):
-		'''If dat has an interest area on fixation, this function can be used to disregard first fixations on fixation IAs 
+		'''If data has an interest area on fixation, this function can be used to disregard first fixations on fixation IAs 
 		so that first fixations refer to the first non-fixation interest area that participants look at'''
 		df['first_fixation'] = df[fixation1Var]
 		df['first_fixation'] = df['first_fixation'].replace(fixationIA, df[fixation2Var])
@@ -244,31 +280,6 @@ class EyeTrackingHelper:
 		df = pd.DataFrame(df)
 		return df
 
-class EasyDataframes:
-	def __init__(self, df, trialVar = None, participantVar = None):
-		self.df = df
-		self.trialVar = trialVar
-		self.participantVar = participantVar
-	
-	def FirstFixProportions(self, conditionVar = 'condition', first_fixationVar = 'first_fixation', IA_1='targetIA', IA_2='distIA', trialVar = 'trial'):
-		'''from df, creates a new df of count values & finds proportion of first fixations to two interest areas,
-		not suitable for more than two interest areas, default values are set to my typical variable names'''
-		result = pd.DataFrame()
-		count_df_sub = self.df[[trialVar,conditionVar,first_fixationVar]]
-		count_df = count_df_sub.groupby([first_fixationVar,conditionVar]).count()
-		count_df = count_df.unstack()
-		conditions = self.df[conditionVar].dropna().unique()
-		condition_list = conditions.tolist()                                                
-		for condition in condition_list:
-			target = (count_df[(trialVar, condition)][IA_1])/((count_df[(trialVar,condition)][IA_2])+
-															  (count_df[(trialVar, condition)][IA_1]))
-			distractor = (count_df[(trialVar, condition)][IA_2])/((count_df[(trialVar, condition)][IA_2])+
-																(count_df[(trialVar, condition)][IA_1]))
-			proportion_dict = {'condition':condition,'target': target,'distractor':distractor}
-			result = result.append(proportion_dict, ignore_index =True)
-			result = pd.DataFrame(result)
-		return result
-	
 
 
 
