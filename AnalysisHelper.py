@@ -8,8 +8,6 @@ import altair as alt
 from altair_saver import save
 import seaborn as sns
 
-#this list of packages should be reduced (& probably also expanded) 
-
 ########## Importing and Cleaning Data ##########
 
 
